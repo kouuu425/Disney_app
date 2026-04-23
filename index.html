@@ -275,7 +275,7 @@
 <footer>ブラウザに自動保存されます (localStorage)</footer>
 
 <script>
-const STORAGE_KEY = "disney-todo-2026-04-24";
+const STORAGE_KEY = "disney-todo-2026-04-24-v2";
 const TRIP_START = new Date("2026-04-24T09:00:00+09:00");
 
 const defaultData = [
@@ -284,28 +284,28 @@ const defaultData = [
     title: "持ち物 (必須)",
     icon: "🎒",
     items: [
-      { id: "wallet", text: "財布 / 現金 / クレジットカード" },
-      { id: "id", text: "身分証明書" },
-      { id: "phone", text: "スマホ + 充電ケーブル" },
-      { id: "battery", text: "モバイルバッテリー (満充電)", note: "アプリで一日ずっと使うので必須" },
-      { id: "hotel-key", text: "予約確認メール / QR" },
-      { id: "meds", text: "常備薬・絆創膏" },
-      { id: "mask", text: "マスク (予備含む)" },
-      { id: "tissue", text: "ティッシュ / ウェットティッシュ" },
+      { id: "wallet", text: "財布" },
+      { id: "phone", text: "スマホ" },
+      { id: "battery", text: "モバイルバッテリー", done: true },
+      { id: "tissue", text: "ティッシュ", done: true },
+      { id: "mask", text: "マスク", done: true },
+      { id: "candy", text: "のど飴" },
+      { id: "trash-bag", text: "ゴミ袋", done: true },
+      { id: "med-drink", text: "飲み薬", done: true },
+      { id: "med-cream", text: "塗り薬", done: true },
     ],
   },
   {
     id: "park-gear",
-    title: "パーク快適グッズ",
+    title: "パーク用グッズ",
     icon: "🏰",
     items: [
-      { id: "cap", text: "帽子 / サングラス", note: "4月下旬は日差しが強い日も" },
-      { id: "sunscreen", text: "日焼け止め" },
-      { id: "jacket", text: "羽織るもの (夜冷える対策)" },
-      { id: "raincoat", text: "折りたたみ傘 or レインコート", note: "天気予報を前日にチェック" },
-      { id: "shoes", text: "履き慣れたスニーカー" },
-      { id: "bag", text: "リュック or ショルダー (両手が空くもの)" },
-      { id: "ears", text: "カチューシャ / ディズニーグッズ", note: "持っているなら" },
+      { id: "small-bag", text: "小さめのカバン" },
+      { id: "cap", text: "帽子", done: true },
+      { id: "sunglasses", text: "サングラス", done: true },
+      { id: "umbrella", text: "傘" },
+      { id: "towel", text: "タオルハンカチ", done: true },
+      { id: "camera", text: "カメラ" },
     ],
   },
   {
@@ -313,12 +313,13 @@ const defaultData = [
     title: "ホテル宿泊の持ち物",
     icon: "🛏️",
     items: [
-      { id: "change", text: "着替え (1日分 + 予備)" },
-      { id: "pajama", text: "パジャマ (ホテルのものを使うならスキップ)" },
-      { id: "toiletries", text: "基礎化粧品 / スキンケア" },
-      { id: "toothbrush", text: "歯ブラシ (アメニティあるか事前確認)" },
-      { id: "contact", text: "コンタクト / メガネ" },
-      { id: "charger-hotel", text: "延長コード or 複数口充電器" },
+      { id: "underwear", text: "1日分の下着", done: true },
+      { id: "clothes", text: "1日分の洋服", done: true },
+      { id: "pajama", text: "パジャマ", done: true },
+      { id: "pouch", text: "ポーチ", done: true },
+      { id: "shampoo", text: "シャンプーリンス", done: true },
+      { id: "toothbrush", text: "歯ブラシ", done: true },
+      { id: "shaver", text: "髭剃り", done: true },
     ],
   },
 ];
@@ -341,7 +342,10 @@ function mergeWithDefaults(saved) {
     const s = map.get(cat.id);
     if (!s) return cat;
     const sItems = new Map(s.items.map((i) => [i.id, i]));
-    cat.items = cat.items.map((it) => ({ ...it, done: !!sItems.get(it.id)?.done }));
+    cat.items = cat.items.map((it) => {
+      const saved = sItems.get(it.id);
+      return { ...it, done: saved ? !!saved.done : !!it.done };
+    });
     // Append custom items from saved that aren't in defaults
     const defaultIds = new Set(cat.items.map((i) => i.id));
     s.items.forEach((it) => {
