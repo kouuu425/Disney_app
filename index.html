@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ディズニー旅行 準備TODO (4/24-25)</title>
+<style>
+  :root {
+    --bg: #0b1e3f;
+    --bg-2: #12306a;
+    --card: #ffffff;
+    --text: #1b1b1b;
+    --muted: #6b7280;
+    --accent: #ff5b8d;
+    --accent-2: #ffd54a;
+    --done: #9ca3af;
+    --border: #e5e7eb;
+    --shadow: 0 10px 30px rgba(0,0,0,.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI",
+      "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #2a4fa0 0%, transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, #ff5b8d55 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    min-height: 100vh;
+  }
+  header {
+    text-align: center;
+    color: white;
+    padding: 36px 16px 20px;
+  }
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    letter-spacing: .02em;
+  }
+  header .sub {
+    opacity: .85;
+    font-size: 14px;
+  }
+  .countdown {
+    display: inline-block;
+    margin-top: 12px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.25);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    backdrop-filter: blur(4px);
+  }
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 16px 16px 80px;
+  }
+  .progress {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress .bar {
+    flex: 1;
+    height: 10px;
+    background: #f0f2f5;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress .fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .35s ease;
+  }
+  .progress .count {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: #111;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .toolbar button {
+    background: rgba(255,255,255,.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.25);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .toolbar button:hover { background: rgba(255,255,255,.22); }
+  .toolbar .spacer { flex: 1; }
+
+  .category {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .category h2 {
+    margin: 0;
+    padding: 14px 16px;
+    font-size: 15px;
+    letter-spacing: .02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #fafbff, #ffffff);
+  }
+  .category h2 .icon {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white;
+    font-size: 15px;
+  }
+  .category h2 .cat-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  ul.items {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+  }
+  ul.items li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+  ul.items li:first-child { border-top: none; }
+  ul.items li:hover { background: #fafbff; }
+  ul.items li input[type="checkbox"] {
+    appearance: none;
+    width: 20px; height: 20px;
+    margin-top: 2px;
+    border: 2px solid #c9cfda;
+    border-radius: 6px;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  ul.items li input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-color: transparent;
+  }
+  ul.items li input[type="checkbox"]:checked::after {
+    content: "";
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  ul.items li .label {
+    flex: 1;
+    font-size: 14.5px;
+    line-height: 1.45;
+  }
+  ul.items li .label .note {
+    display: block;
+    color: var(--muted);
+    font-size: 12.5px;
+    margin-top: 2px;
+  }
+  ul.items li.done .label { color: var(--done); text-decoration: line-through; }
+  ul.items li.done .label .note { text-decoration: none; }
+
+  .add-form {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 14px;
+    border-top: 1px solid var(--border);
+    background: #fafbff;
+  }
+  .add-form input[type="text"] {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+  }
+  .add-form input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+  .add-form button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .item-remove {
+    opacity: 0;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    align-self: center;
+    transition: opacity .15s ease, color .15s ease;
+  }
+  ul.items li:hover .item-remove { opacity: 1; }
+  .item-remove:hover { color: #e11d48; }
+
+  footer {
+    text-align: center;
+    color: rgba(255,255,255,.7);
+    font-size: 12px;
+    padding: 8px 16px 28px;
+  }
+
+  body.hide-done ul.items li.done { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>✨ ディズニー旅行 準備TODO</h1>
+  <div class="sub">4/24(金) - 4/25(土) / ディズニーアンバサダーホテル × ディズニーシー</div>
+  <div class="countdown" id="countdown">出発まで計算中…</div>
+</header>
+<main>
+  <div class="progress">
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="count" id="count">0 / 0</div>
+  </div>
+
+  <div class="toolbar">
+    <button id="toggleHide">✅ 完了を隠す</button>
+    <button id="resetAll">🔄 すべてリセット</button>
+    <div class="spacer"></div>
+    <button id="exportData">💾 エクスポート</button>
+  </div>
+
+  <div id="app"></div>
+</main>
+<footer>ブラウザに自動保存されます (localStorage)</footer>
+
+<script>
+const STORAGE_KEY = "disney-todo-2026-04-24";
+const TRIP_START = new Date("2026-04-24T09:00:00+09:00");
+
+const defaultData = [
+  {
+    id: "reservation",
+    title: "予約・チケット確認",
+    icon: "🎫",
+    items: [
+      { id: "hotel", text: "アンバサダーホテルの予約確認", note: "予約番号・チェックイン時間(15:00〜)" },
+      { id: "ticket", text: "ディズニーシーのパークチケット準備", note: "QRコードをスクショ or 印刷" },
+      { id: "dpa", text: "ディズニー・プレミアアクセス(DPA)の方針を決める", note: "当日アプリで購入" },
+      { id: "show", text: "ショー抽選・鑑賞エリア方針", note: "BBBやショーの時間を確認" },
+      { id: "restaurant", text: "レストラン予約状況の確認", note: "プライオリティ・シーティング" },
+      { id: "transport", text: "行き/帰りの交通手段を確定", note: "舞浜駅までのルート・時刻" },
+    ],
+  },
+  {
+    id: "app",
+    title: "アプリ・デジタル準備",
+    icon: "📱",
+    items: [
+      { id: "tdr-app", text: "東京ディズニーリゾート・アプリを最新版に更新" },
+      { id: "login", text: "アプリにパークチケットを登録", note: "家族分もまとめて" },
+      { id: "notify", text: "通知をONにしておく", note: "スタンバイパス・DPAの通知用" },
+      { id: "map", text: "パーク内マップを事前に眺めておく", note: "周りたい順を軽くイメージ" },
+    ],
+  },
+  {
+    id: "packing",
+    title: "持ち物 (必須)",
+    icon: "🎒",
+    items: [
+      { id: "wallet", text: "財布 / 現金 / クレジットカード" },
+      { id: "id", text: "身分証明書" },
+      { id: "phone", text: "スマホ + 充電ケーブル" },
+      { id: "battery", text: "モバイルバッテリー (満充電)", note: "アプリで一日ずっと使うので必須" },
+      { id: "hotel-key", text: "予約確認メール / QR" },
+      { id: "meds", text: "常備薬・絆創膏" },
+      { id: "mask", text: "マスク (予備含む)" },
+      { id: "tissue", text: "ティッシュ / ウェットティッシュ" },
+    ],
+  },
+  {
+    id: "park-gear",
+    title: "パーク快適グッズ",
+    icon: "🏰",
+    items: [
+      { id: "cap", text: "帽子 / サングラス", note: "4月下旬は日差しが強い日も" },
+      { id: "sunscreen", text: "日焼け止め" },
+      { id: "jacket", text: "羽織るもの (夜冷える対策)" },
+      { id: "raincoat", text: "折りたたみ傘 or レインコート", note: "天気予報を前日にチェック" },
+      { id: "shoes", text: "履き慣れたスニーカー" },
+      { id: "bag", text: "リュック or ショルダー (両手が空くもの)" },
+      { id: "ears", text: "カチューシャ / ディズニーグッズ", note: "持っているなら" },
+    ],
+  },
+  {
+    id: "hotel",
+    title: "ホテル宿泊準備",
+    icon: "🛏️",
+    items: [
+      { id: "change", text: "着替え (1日分 + 予備)" },
+      { id: "pajama", text: "パジャマ (ホテルのものを使うならスキップ)" },
+      { id: "toiletries", text: "基礎化粧品 / スキンケア" },
+      { id: "toothbrush", text: "歯ブラシ (アメニティあるか事前確認)" },
+      { id: "contact", text: "コンタクト / メガネ" },
+      { id: "charger-hotel", text: "延長コード or 複数口充電器" },
+    ],
+  },
+  {
+    id: "pre-day",
+    title: "前日(4/23)までにやること",
+    icon: "📅",
+    items: [
+      { id: "weather", text: "4/24・4/25の天気予報を確認" },
+      { id: "park-hours", text: "パークの運営時間を確認", note: "開園・閉園・ショー時間" },
+      { id: "schedule", text: "1日のざっくりスケジュールを決める", note: "朝イチで何に乗るか" },
+      { id: "charge-all", text: "スマホ・モバイルバッテリーをフル充電" },
+      { id: "cash", text: "現金を少し下ろしておく" },
+      { id: "alarm", text: "当日の目覚ましセット" },
+      { id: "pack-final", text: "最終パッキングチェック" },
+    ],
+  },
+  {
+    id: "day-of",
+    title: "当日(4/24)朝",
+    icon: "☀️",
+    items: [
+      { id: "breakfast", text: "朝ごはんを食べる", note: "パーク内は混む" },
+      { id: "check-ticket", text: "チケットがアプリで開けるか最終確認" },
+      { id: "early-arrive", text: "開園30〜45分前には舞浜到着を目安に" },
+      { id: "luggage", text: "荷物はホテルに預ける or 宅配で先送り" },
+    ],
+  },
+];
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(defaultData);
+    const saved = JSON.parse(raw);
+    // Merge: keep default structure, overlay saved 'done' + custom items
+    return mergeWithDefaults(saved);
+  } catch (e) {
+    return structuredClone(defaultData);
+  }
+}
+
+function mergeWithDefaults(saved) {
+  const map = new Map(saved.map((c) => [c.id, c]));
+  const merged = structuredClone(defaultData).map((cat) => {
+    const s = map.get(cat.id);
+    if (!s) return cat;
+    const sItems = new Map(s.items.map((i) => [i.id, i]));
+    cat.items = cat.items.map((it) => ({ ...it, done: !!sItems.get(it.id)?.done }));
+    // Append custom items from saved that aren't in defaults
+    const defaultIds = new Set(cat.items.map((i) => i.id));
+    s.items.forEach((it) => {
+      if (!defaultIds.has(it.id)) cat.items.push({ ...it });
+    });
+    return cat;
+  });
+  return merged;
+}
+
+function save(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let data = load();
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  let total = 0, done = 0;
+
+  data.forEach((cat) => {
+    const catDone = cat.items.filter((i) => i.done).length;
+    total += cat.items.length;
+    done += catDone;
+
+    const section = document.createElement("section");
+    section.className = "category";
+    section.innerHTML = `
+      <h2>
+        <span class="icon">${cat.icon}</span>
+        ${escapeHtml(cat.title)}
+        <span class="cat-count">${catDone} / ${cat.items.length}</span>
+      </h2>
+      <ul class="items" data-cat="${cat.id}"></ul>
+      <form class="add-form" data-cat="${cat.id}">
+        <input type="text" placeholder="項目を追加…" />
+        <button type="submit">追加</button>
+      </form>
+    `;
+    const ul = section.querySelector("ul");
+    cat.items.forEach((it) => {
+      const li = document.createElement("li");
+      li.className = it.done ? "done" : "";
+      li.dataset.id = it.id;
+      li.innerHTML = `
+        <input type="checkbox" ${it.done ? "checked" : ""} />
+        <span class="label">${escapeHtml(it.text)}${it.note ? `<span class="note">${escapeHtml(it.note)}</span>` : ""}</span>
+        ${it.custom ? `<button class="item-remove" title="削除">✕</button>` : ""}
+      `;
+      ul.appendChild(li);
+    });
+    app.appendChild(section);
+  });
+
+  document.getElementById("count").textContent = `${done} / ${total}`;
+  document.getElementById("fill").style.width = total === 0 ? "0%" : `${(done / total) * 100}%`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+document.addEventListener("click", (e) => {
+  const li = e.target.closest("li[data-id]");
+  if (li && !e.target.classList.contains("item-remove")) {
+    const catId = li.parentElement.dataset.cat;
+    const id = li.dataset.id;
+    const cat = data.find((c) => c.id === catId);
+    const it = cat.items.find((i) => i.id === id);
+    it.done = !it.done;
+    save(data);
+    render();
+    return;
+  }
+  if (e.target.classList.contains("item-remove")) {
+    const li = e.target.closest("li[data-id]");
+    const catId = li.parentElement.dataset.cat;
+    const id = li.dataset.id;
+    const cat = data.find((c) => c.id === catId);
+    cat.items = cat.items.filter((i) => i.id !== id);
+    save(data);
+    render();
+    e.stopPropagation();
+  }
+});
+
+document.addEventListener("submit", (e) => {
+  if (!e.target.classList.contains("add-form")) return;
+  e.preventDefault();
+  const input = e.target.querySelector("input");
+  const text = input.value.trim();
+  if (!text) return;
+  const catId = e.target.dataset.cat;
+  const cat = data.find((c) => c.id === catId);
+  cat.items.push({
+    id: `custom-${Date.now()}`,
+    text,
+    done: false,
+    custom: true,
+  });
+  input.value = "";
+  save(data);
+  render();
+});
+
+document.getElementById("toggleHide").addEventListener("click", (e) => {
+  document.body.classList.toggle("hide-done");
+  e.currentTarget.textContent = document.body.classList.contains("hide-done")
+    ? "👁️ 完了も表示"
+    : "✅ 完了を隠す";
+});
+
+document.getElementById("resetAll").addEventListener("click", () => {
+  if (!confirm("全てのチェックと追加項目をリセットしますか?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  data = structuredClone(defaultData);
+  render();
+});
+
+document.getElementById("exportData").addEventListener("click", () => {
+  const lines = [];
+  data.forEach((cat) => {
+    lines.push(`【${cat.title}】`);
+    cat.items.forEach((it) => {
+      lines.push(`${it.done ? "[x]" : "[ ]"} ${it.text}${it.note ? ` (${it.note})` : ""}`);
+    });
+    lines.push("");
+  });
+  const text = lines.join("\n");
+  navigator.clipboard?.writeText(text).then(
+    () => alert("クリップボードにコピーしました"),
+    () => prompt("コピーしてください", text)
+  );
+});
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = TRIP_START - now;
+  const el = document.getElementById("countdown");
+  if (diff <= 0) {
+    el.textContent = "🎉 旅行中! 楽しんで!";
+    return;
+  }
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  el.textContent = `🕒 出発まで あと ${days}日 ${hours}時間`;
+}
+updateCountdown();
+setInterval(updateCountdown, 60000);
+
+render();
+</script>
+</body>
+</html>
