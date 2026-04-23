@@ -31,9 +31,10 @@
     min-height: 100vh;
   }
   header {
+    position: relative;
     text-align: center;
     color: white;
-    padding: 36px 16px 20px;
+    padding: 52px 16px 20px;
   }
   header h1 {
     margin: 0 0 6px;
@@ -56,28 +57,41 @@
     backdrop-filter: blur(4px);
   }
 
+  .top-nav {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+  }
+  .top-nav button {
+    background: rgba(255,255,255,.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.25);
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: all .15s ease;
+    white-space: nowrap;
+  }
+  .top-nav button:hover { background: rgba(255,255,255,.22); }
+  .top-nav button.active {
+    background: #fff;
+    color: var(--bg);
+    border-color: #fff;
+    font-weight: 600;
+  }
+
   main {
     max-width: 760px;
     margin: 0 auto;
     padding: 16px 16px 80px;
   }
-
-  .section-heading {
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    margin: 26px 4px 12px;
-    letter-spacing: .02em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-heading:first-child { margin-top: 4px; }
-  .section-heading .bar {
-    flex: 1;
-    height: 1px;
-    background: rgba(255,255,255,.2);
-  }
+  .view { display: none; }
+  .view.active { display: block; }
 
   .progress {
     background: var(--card);
@@ -282,43 +296,53 @@
     padding: 8px 16px 28px;
   }
 
-  body.hide-done ul.items li.done { display: none; }
+  body.hide-done .view[data-view="packing"] ul.items li.done { display: none; }
 
   @media (max-width: 480px) {
     header h1 { font-size: 20px; }
+    .top-nav button { padding: 6px 10px; font-size: 11.5px; }
   }
 </style>
 </head>
 <body>
 <header>
+  <nav class="top-nav" id="topNav">
+    <button data-view="packing" class="active">🎒 持ち物</button>
+    <button data-view="attractions">🎢 アトラクション</button>
+  </nav>
   <h1>✨ ディズニー旅行 4/24-25</h1>
   <div class="sub">ディズニーアンバサダーホテル × ディズニーシー</div>
   <div class="countdown" id="countdown">出発まで計算中…</div>
 </header>
 <main>
-  <div class="section-heading">🎒 持ち物リスト<span class="bar"></span></div>
-  <div class="progress">
-    <div class="bar"><div class="fill" id="fill"></div></div>
-    <div class="count" id="count">0 / 0</div>
-  </div>
-  <div class="toolbar">
-    <button id="toggleHide">✅ 完了を隠す</button>
-    <button id="resetPacking">🔄 持ち物をリセット</button>
-    <div class="spacer"></div>
-    <button id="exportData">💾 エクスポート</button>
-  </div>
-  <div id="packingApp"></div>
+  <!-- Packing view -->
+  <section class="view active" data-view="packing">
+    <div class="progress">
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="count" id="count">0 / 0</div>
+    </div>
+    <div class="toolbar">
+      <button id="toggleHide">✅ 完了を隠す</button>
+      <button id="resetPacking">🔄 持ち物をリセット</button>
+      <div class="spacer"></div>
+      <button id="exportData">💾 エクスポート</button>
+    </div>
+    <div id="packingApp"></div>
+  </section>
 
-  <div class="section-heading">🎢 ディズニーシー アトラクション<span class="bar"></span></div>
-  <div class="toolbar">
-    <button id="resetAttractions">🔄 アトラクションをリセット</button>
-  </div>
-  <div id="attractionsApp"></div>
+  <!-- Attractions view -->
+  <section class="view" data-view="attractions">
+    <div class="toolbar">
+      <button id="resetAttractions">🔄 アトラクションをリセット</button>
+    </div>
+    <div id="attractionsApp"></div>
+  </section>
 </main>
 <footer>ブラウザに自動保存されます (localStorage)</footer>
 
 <script>
 const TRIP_START = new Date("2026-04-24T09:00:00+09:00");
+const VIEW_KEY = "disney-active-view";
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -328,14 +352,33 @@ function escapeHtml(s) {
 function uid(prefix) { return `${prefix}-${Date.now()}-${Math.floor(Math.random()*1000)}`; }
 
 /* =========================================
- * Packing
+ * View switching
  * ========================================= */
-const PACKING_KEY = "disney-todo-2026-04-24-v3";
+function switchView(name) {
+  document.querySelectorAll(".view").forEach((v) => {
+    v.classList.toggle("active", v.dataset.view === name);
+  });
+  document.querySelectorAll("#topNav button").forEach((b) => {
+    b.classList.toggle("active", b.dataset.view === name);
+  });
+  localStorage.setItem(VIEW_KEY, name);
+  window.scrollTo(0, 0);
+}
+document.getElementById("topNav").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-view]");
+  if (b) switchView(b.dataset.view);
+});
+
+/* =========================================
+ * Packing (single flat list)
+ * ========================================= */
+const PACKING_KEY = "disney-packing-v4";
+const PACKING_KEY_OLD = "disney-todo-2026-04-24-v3";
 
 const packingDefaults = [
   {
-    id: "packing",
-    title: "持ち物 (必須)",
+    id: "all",
+    title: "持ち物",
     icon: "🎒",
     items: [
       { id: "wallet", text: "財布" },
@@ -347,26 +390,12 @@ const packingDefaults = [
       { id: "trash-bag", text: "ゴミ袋" },
       { id: "med-drink", text: "飲み薬" },
       { id: "med-cream", text: "塗り薬" },
-    ],
-  },
-  {
-    id: "park-gear",
-    title: "パーク用グッズ",
-    icon: "🏰",
-    items: [
       { id: "small-bag", text: "小さめのカバン" },
       { id: "cap", text: "帽子" },
       { id: "sunglasses", text: "サングラス" },
       { id: "umbrella", text: "傘" },
       { id: "towel", text: "タオルハンカチ" },
       { id: "camera", text: "カメラ" },
-    ],
-  },
-  {
-    id: "hotel",
-    title: "ホテル宿泊の持ち物",
-    icon: "🛏️",
-    items: [
       { id: "underwear", text: "1日分の下着" },
       { id: "clothes", text: "1日分の洋服" },
       { id: "pajama", text: "パジャマ" },
@@ -378,20 +407,41 @@ const packingDefaults = [
   },
 ];
 
-function loadStore(key, defaults) {
+function migratePackingFromV3() {
+  const oldRaw = localStorage.getItem(PACKING_KEY_OLD);
+  if (!oldRaw) return null;
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return structuredClone(defaults);
-    const saved = JSON.parse(raw);
-    const savedIds = new Set(saved.map((c) => c.id));
-    structuredClone(defaults).forEach((cat) => {
-      if (!savedIds.has(cat.id)) saved.push(cat);
+    const oldData = JSON.parse(oldRaw);
+    // Flatten all items from any categories into a single "all" category,
+    // preserving order and done state.
+    const flatItems = [];
+    const seen = new Set();
+    oldData.forEach((cat) => {
+      (cat.items || []).forEach((it) => {
+        if (seen.has(it.id)) return;
+        seen.add(it.id);
+        flatItems.push({ id: it.id, text: it.text, done: !!it.done, ...(it.note ? { note: it.note } : {}) });
+      });
     });
-    return saved;
-  } catch { return structuredClone(defaults); }
+    if (flatItems.length === 0) return null;
+    const migrated = [{ id: "all", title: "持ち物", icon: "🎒", items: flatItems }];
+    localStorage.setItem(PACKING_KEY, JSON.stringify(migrated));
+    localStorage.removeItem(PACKING_KEY_OLD);
+    return migrated;
+  } catch { return null; }
 }
 
-let packingData = loadStore(PACKING_KEY, packingDefaults);
+function loadPacking() {
+  const raw = localStorage.getItem(PACKING_KEY);
+  if (raw) {
+    try { return JSON.parse(raw); } catch { /* fall through */ }
+  }
+  const migrated = migratePackingFromV3();
+  if (migrated) return migrated;
+  return structuredClone(packingDefaults);
+}
+
+let packingData = loadPacking();
 function savePacking() { localStorage.setItem(PACKING_KEY, JSON.stringify(packingData)); }
 
 function renderPacking() {
@@ -476,18 +526,17 @@ document.getElementById("toggleHide").addEventListener("click", (e) => {
 document.getElementById("resetPacking").addEventListener("click", () => {
   if (!confirm("持ち物リストを初期状態に戻しますか?")) return;
   localStorage.removeItem(PACKING_KEY);
-  packingData = loadStore(PACKING_KEY, packingDefaults);
+  packingData = structuredClone(packingDefaults);
+  savePacking();
   renderPacking();
 });
 
 document.getElementById("exportData").addEventListener("click", () => {
   const lines = [];
   packingData.forEach((cat) => {
-    lines.push(`【${cat.title}】`);
     cat.items.forEach((it) => {
       lines.push(`${it.done ? "[x]" : "[ ]"} ${it.text}${it.note ? ` (${it.note})` : ""}`);
     });
-    lines.push("");
   });
   const text = lines.join("\n");
   navigator.clipboard?.writeText(text).then(
@@ -589,7 +638,20 @@ const attractionsDefaults = [
   },
 ];
 
-let attractionsData = loadStore(ATTRACTIONS_KEY, attractionsDefaults);
+function loadAttractions() {
+  try {
+    const raw = localStorage.getItem(ATTRACTIONS_KEY);
+    if (!raw) return structuredClone(attractionsDefaults);
+    const saved = JSON.parse(raw);
+    const savedIds = new Set(saved.map((c) => c.id));
+    structuredClone(attractionsDefaults).forEach((cat) => {
+      if (!savedIds.has(cat.id)) saved.push(cat);
+    });
+    return saved;
+  } catch { return structuredClone(attractionsDefaults); }
+}
+
+let attractionsData = loadAttractions();
 function saveAttractions() { localStorage.setItem(ATTRACTIONS_KEY, JSON.stringify(attractionsData)); }
 
 function renderAttractions() {
@@ -666,7 +728,8 @@ document.getElementById("attractionsApp").addEventListener("submit", (e) => {
 document.getElementById("resetAttractions").addEventListener("click", () => {
   if (!confirm("アトラクションリストを初期状態に戻しますか?")) return;
   localStorage.removeItem(ATTRACTIONS_KEY);
-  attractionsData = loadStore(ATTRACTIONS_KEY, attractionsDefaults);
+  attractionsData = structuredClone(attractionsDefaults);
+  saveAttractions();
   renderAttractions();
 });
 
@@ -687,6 +750,7 @@ setInterval(updateCountdown, 60000);
 
 renderPacking();
 renderAttractions();
+switchView(localStorage.getItem(VIEW_KEY) || "packing");
 </script>
 </body>
 </html>
