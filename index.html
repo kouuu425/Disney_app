@@ -329,31 +329,17 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return structuredClone(defaultData);
     const saved = JSON.parse(raw);
-    // Merge: keep default structure, overlay saved 'done' + custom items
-    return mergeWithDefaults(saved);
+    // After first save, the user owns their list. Use saved state as-is so
+    // deleted default items stay deleted. Only merge in newly added default
+    // categories so the structure isn't broken.
+    const savedCatIds = new Set(saved.map((c) => c.id));
+    structuredClone(defaultData).forEach((cat) => {
+      if (!savedCatIds.has(cat.id)) saved.push(cat);
+    });
+    return saved;
   } catch (e) {
     return structuredClone(defaultData);
   }
-}
-
-function mergeWithDefaults(saved) {
-  const map = new Map(saved.map((c) => [c.id, c]));
-  const merged = structuredClone(defaultData).map((cat) => {
-    const s = map.get(cat.id);
-    if (!s) return cat;
-    const sItems = new Map(s.items.map((i) => [i.id, i]));
-    cat.items = cat.items.map((it) => {
-      const saved = sItems.get(it.id);
-      return { ...it, done: saved ? !!saved.done : !!it.done };
-    });
-    // Append custom items from saved that aren't in defaults
-    const defaultIds = new Set(cat.items.map((i) => i.id));
-    s.items.forEach((it) => {
-      if (!defaultIds.has(it.id)) cat.items.push({ ...it });
-    });
-    return cat;
-  });
-  return merged;
 }
 
 function save(data) {
@@ -394,7 +380,7 @@ function render() {
       li.innerHTML = `
         <input type="checkbox" ${it.done ? "checked" : ""} />
         <span class="label">${escapeHtml(it.text)}${it.note ? `<span class="note">${escapeHtml(it.note)}</span>` : ""}</span>
-        ${it.custom ? `<button class="item-remove" title="削除">✕</button>` : ""}
+        <button class="item-remove" title="削除">✕</button>
       `;
       ul.appendChild(li);
     });
