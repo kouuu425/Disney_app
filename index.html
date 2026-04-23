@@ -61,11 +61,17 @@
     position: absolute;
     top: 12px;
     right: 12px;
+    left: 12px;
     display: flex;
     gap: 6px;
     z-index: 10;
+    justify-content: flex-end;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  .top-nav button {
+  .top-nav::-webkit-scrollbar { display: none; }
+  .top-nav button, .top-nav .nav-link {
     background: rgba(255,255,255,.12);
     color: #fff;
     border: 1px solid rgba(255,255,255,.25);
@@ -76,8 +82,11 @@
     backdrop-filter: blur(4px);
     transition: all .15s ease;
     white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
   }
-  .top-nav button:hover { background: rgba(255,255,255,.22); }
+  .top-nav button:hover, .top-nav .nav-link:hover { background: rgba(255,255,255,.22); }
   .top-nav button.active {
     background: #fff;
     color: var(--bg);
@@ -446,9 +455,71 @@
   }
   .pass-sources a { color: inherit; text-decoration: underline; }
 
+  /* Map view */
+  .map-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .map-toolbar a, .map-toolbar button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.25);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s ease;
+  }
+  .map-toolbar a:hover, .map-toolbar button:hover { background: rgba(255,255,255,.22); }
+  .map-container {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: #fff;
+    height: calc(100vh - 260px);
+    min-height: 420px;
+  }
+  .map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .map-hint {
+    font-size: 11.5px;
+    color: rgba(255,255,255,.5);
+    margin: 10px 4px 0;
+    line-height: 1.5;
+  }
+  .park-map-card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .park-map-card h4 {
+    margin: 0 0 6px;
+    font-size: 13px;
+  }
+  .park-map-card a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .park-map-card a:hover { text-decoration: underline; }
+
   @media (max-width: 480px) {
     header h1 { font-size: 20px; }
-    .top-nav button { padding: 6px 10px; font-size: 11.5px; }
+    .top-nav button, .top-nav .nav-link { padding: 6px 10px; font-size: 11.5px; flex-shrink: 0; }
   }
 </style>
 </head>
@@ -458,6 +529,8 @@
     <button data-view="packing" class="active">🎒 持ち物</button>
     <button data-view="attractions">🎢 アトラクション</button>
     <button data-view="passes">🎟️ パス</button>
+    <button data-view="map">🗺️ マップ</button>
+    <a class="nav-link" href="https://walica.jp/group/01KCY2N0RNZSMS82SME14TVRST" target="_blank" rel="noopener">💰 お金</a>
   </nav>
   <h1>✨ ディズニー旅行 4/24-25</h1>
   <div class="sub">ディズニーアンバサダーホテル × ディズニーシー</div>
@@ -616,6 +689,28 @@
       <a href="https://castel.jp/p/9484" target="_blank" rel="noopener">CASTEL: 3種のパスまとめ</a>
       <br>※ 対象 / 料金は公式アプリで当日の最新情報をご確認ください
     </p>
+  </section>
+
+  <!-- Map view -->
+  <section class="view" data-view="map">
+    <div class="map-toolbar">
+      <a href="https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E4%BA%AC%E3%83%87%E3%82%A3%E3%82%BA%E3%83%8B%E3%83%BC%E3%82%B7%E3%83%BC" target="_blank" rel="noopener">📍 Googleマップで開く</a>
+      <a href="https://www.tokyodisneyresort.jp/tds/map.html" target="_blank" rel="noopener">🗺️ 公式パークマップ</a>
+    </div>
+    <div class="map-container">
+      <iframe
+        src="https://www.google.com/maps?q=%E6%9D%B1%E4%BA%AC%E3%83%87%E3%82%A3%E3%82%BA%E3%83%8B%E3%83%BC%E3%82%B7%E3%83%BC&ll=35.6267,139.8850&z=16&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="東京ディズニーシー マップ"></iframe>
+    </div>
+    <div class="park-map-card">
+      <h4>🏰 パーク内の詳細マップ</h4>
+      アトラクション・レストラン・ショップの位置を確認するなら、
+      <a href="https://www.tokyodisneyresort.jp/tds/map.html" target="_blank" rel="noopener">公式パークマップ</a>
+      または東京ディズニーリゾート・アプリ内のマップが便利です。
+    </div>
+    <p class="map-hint">※ ピンチで拡大縮小、ドラッグで移動できます。衛星ビューに切り替えるとパーク全体の構造が分かりやすいです。</p>
   </section>
 </main>
 <footer>ブラウザに自動保存されます (localStorage)</footer>
