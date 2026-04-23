@@ -16,6 +16,7 @@
     --done: #9ca3af;
     --border: #e5e7eb;
     --shadow: 0 10px 30px rgba(0,0,0,.15);
+    --closed: #e11d48;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -29,12 +30,10 @@
       linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
     min-height: 100vh;
   }
-
   header {
-    position: relative;
     text-align: center;
     color: white;
-    padding: 52px 16px 20px;
+    padding: 36px 16px 20px;
   }
   header h1 {
     margin: 0 0 6px;
@@ -57,42 +56,28 @@
     backdrop-filter: blur(4px);
   }
 
-  .top-nav {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    display: flex;
-    gap: 6px;
-    z-index: 10;
-  }
-  .top-nav button {
-    background: rgba(255,255,255,.12);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,.25);
-    padding: 7px 12px;
-    border-radius: 999px;
-    font-size: 12.5px;
-    cursor: pointer;
-    backdrop-filter: blur(4px);
-    transition: all .15s ease;
-    white-space: nowrap;
-  }
-  .top-nav button:hover { background: rgba(255,255,255,.22); }
-  .top-nav button.active {
-    background: #fff;
-    color: var(--bg);
-    border-color: #fff;
-    font-weight: 600;
-  }
-
   main {
     max-width: 760px;
     margin: 0 auto;
     padding: 16px 16px 80px;
   }
 
-  .view { display: none; }
-  .view.active { display: block; }
+  .section-heading {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 26px 4px 12px;
+    letter-spacing: .02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-heading:first-child { margin-top: 4px; }
+  .section-heading .bar {
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,.2);
+  }
 
   .progress {
     background: var(--card);
@@ -226,14 +211,28 @@
     font-size: 14.5px;
     line-height: 1.45;
   }
+  ul.items li .label .badge {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--closed);
+    padding: 1px 6px;
+    border-radius: 4px;
+    vertical-align: 2px;
+    letter-spacing: .04em;
+  }
   ul.items li .label .note {
     display: block;
     color: var(--muted);
     font-size: 12.5px;
     margin-top: 2px;
   }
+  ul.items li.closed .label { color: var(--muted); }
   ul.items li.done .label { color: var(--done); text-decoration: line-through; }
-  ul.items li.done .label .note { text-decoration: none; }
+  ul.items li.done .label .note,
+  ul.items li.done .label .badge { text-decoration: none; }
 
   .add-form {
     display: flex;
@@ -276,130 +275,6 @@
   ul.items li:hover .item-remove { opacity: 1; }
   .item-remove:hover { color: #e11d48; }
 
-  /* Timeline view */
-  .tl-header-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 14px;
-  }
-  .tl-header-card h2 {
-    margin: 0 0 4px;
-    font-size: 17px;
-  }
-  .tl-header-card .meta {
-    color: var(--muted);
-    font-size: 13px;
-  }
-
-  .tl-row {
-    background: var(--card);
-    border-radius: 14px;
-    box-shadow: var(--shadow);
-    margin-bottom: 10px;
-    padding: 12px 14px;
-    display: grid;
-    grid-template-columns: 90px 1fr auto;
-    gap: 10px 12px;
-    align-items: start;
-  }
-  .tl-row.done { opacity: .55; }
-  .tl-row.done .tl-action { text-decoration: line-through; }
-  .tl-row input, .tl-row textarea {
-    width: 100%;
-    border: none;
-    background: transparent;
-    padding: 4px 6px;
-    margin: -4px -6px;
-    border-radius: 6px;
-    font-family: inherit;
-    color: inherit;
-    resize: none;
-    outline: none;
-  }
-  .tl-row input:focus, .tl-row textarea:focus {
-    background: #fafbff;
-    box-shadow: inset 0 0 0 1px var(--accent);
-  }
-  .tl-time {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--bg);
-    font-variant-numeric: tabular-nums;
-    padding-top: 2px;
-  }
-  .tl-main { min-width: 0; }
-  .tl-action {
-    font-size: 14.5px;
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-  .tl-note {
-    font-size: 12.5px;
-    color: var(--muted);
-    line-height: 1.4;
-  }
-  .tl-row .tl-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: center;
-  }
-  .tl-row .tl-done {
-    appearance: none;
-    width: 22px; height: 22px;
-    border: 2px solid #c9cfda;
-    border-radius: 6px;
-    background: #fff;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .15s ease;
-    flex-shrink: 0;
-  }
-  .tl-row .tl-done:checked {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    border-color: transparent;
-  }
-  .tl-row .tl-done:checked::after {
-    content: "";
-    width: 6px; height: 10px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg) translateY(-1px);
-  }
-  .tl-row .tl-remove {
-    opacity: .4;
-    color: var(--muted);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 2px 4px;
-    line-height: 1;
-  }
-  .tl-row:hover .tl-remove { opacity: 1; }
-  .tl-row .tl-remove:hover { color: #e11d48; }
-
-  .tl-add-btn {
-    width: 100%;
-    padding: 12px;
-    border-radius: 14px;
-    border: 1.5px dashed rgba(255,255,255,.4);
-    background: rgba(255,255,255,.06);
-    color: #fff;
-    font-size: 14px;
-    cursor: pointer;
-    margin-bottom: 14px;
-    transition: all .15s ease;
-  }
-  .tl-add-btn:hover {
-    background: rgba(255,255,255,.14);
-    border-color: rgba(255,255,255,.6);
-  }
-
   footer {
     text-align: center;
     color: rgba(255,255,255,.7);
@@ -407,65 +282,42 @@
     padding: 8px 16px 28px;
   }
 
-  body.hide-done .view[data-view="packing"] ul.items li.done { display: none; }
+  body.hide-done ul.items li.done { display: none; }
 
   @media (max-width: 480px) {
     header h1 { font-size: 20px; }
-    .top-nav button { padding: 6px 10px; font-size: 11.5px; }
-    .tl-row {
-      grid-template-columns: 78px 1fr auto;
-      gap: 8px 10px;
-      padding: 10px 12px;
-    }
   }
 </style>
 </head>
 <body>
 <header>
-  <nav class="top-nav" id="topNav">
-    <button data-view="packing" class="active">🎒 持ち物</button>
-    <button data-view="timeline">📅 タイムライン</button>
-  </nav>
   <h1>✨ ディズニー旅行 4/24-25</h1>
   <div class="sub">ディズニーアンバサダーホテル × ディズニーシー</div>
   <div class="countdown" id="countdown">出発まで計算中…</div>
 </header>
 <main>
-  <!-- Packing View -->
-  <section class="view active" data-view="packing">
-    <div class="progress">
-      <div class="bar"><div class="fill" id="fill"></div></div>
-      <div class="count" id="count">0 / 0</div>
-    </div>
-    <div class="toolbar">
-      <button id="toggleHide">✅ 完了を隠す</button>
-      <button id="resetAll">🔄 すべてリセット</button>
-      <div class="spacer"></div>
-      <button id="exportData">💾 エクスポート</button>
-    </div>
-    <div id="packingApp"></div>
-  </section>
+  <div class="section-heading">🎒 持ち物リスト<span class="bar"></span></div>
+  <div class="progress">
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="count" id="count">0 / 0</div>
+  </div>
+  <div class="toolbar">
+    <button id="toggleHide">✅ 完了を隠す</button>
+    <button id="resetPacking">🔄 持ち物をリセット</button>
+    <div class="spacer"></div>
+    <button id="exportData">💾 エクスポート</button>
+  </div>
+  <div id="packingApp"></div>
 
-  <!-- Timeline View -->
-  <section class="view" data-view="timeline">
-    <div class="tl-header-card">
-      <h2>★ ディズニーシー 1日プラン ★</h2>
-      <div class="meta">2026年4月25日(土) / 2名 / 開園 9:00〜21:00 / アンバサダー泊</div>
-    </div>
-    <div class="toolbar">
-      <button id="tlReset">🔄 タイムラインをリセット</button>
-    </div>
-    <div id="timelineApp"></div>
-    <button class="tl-add-btn" id="tlAdd">＋ 行を追加</button>
-    <div id="closuresApp"></div>
-  </section>
+  <div class="section-heading">🎢 ディズニーシー アトラクション<span class="bar"></span></div>
+  <div class="toolbar">
+    <button id="resetAttractions">🔄 アトラクションをリセット</button>
+  </div>
+  <div id="attractionsApp"></div>
 </main>
 <footer>ブラウザに自動保存されます (localStorage)</footer>
 
 <script>
-/* =========================================
- * Shared
- * ========================================= */
 const TRIP_START = new Date("2026-04-24T09:00:00+09:00");
 
 function escapeHtml(s) {
@@ -473,30 +325,10 @@ function escapeHtml(s) {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
 }
-
 function uid(prefix) { return `${prefix}-${Date.now()}-${Math.floor(Math.random()*1000)}`; }
 
 /* =========================================
- * View switching
- * ========================================= */
-const VIEW_KEY = "disney-active-view";
-function switchView(name) {
-  document.querySelectorAll(".view").forEach((v) => {
-    v.classList.toggle("active", v.dataset.view === name);
-  });
-  document.querySelectorAll("#topNav button").forEach((b) => {
-    b.classList.toggle("active", b.dataset.view === name);
-  });
-  localStorage.setItem(VIEW_KEY, name);
-  window.scrollTo(0, 0);
-}
-document.getElementById("topNav").addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-view]");
-  if (b) switchView(b.dataset.view);
-});
-
-/* =========================================
- * Packing view
+ * Packing
  * ========================================= */
 const PACKING_KEY = "disney-todo-2026-04-24-v3";
 
@@ -546,20 +378,20 @@ const packingDefaults = [
   },
 ];
 
-function loadPacking() {
+function loadStore(key, defaults) {
   try {
-    const raw = localStorage.getItem(PACKING_KEY);
-    if (!raw) return structuredClone(packingDefaults);
+    const raw = localStorage.getItem(key);
+    if (!raw) return structuredClone(defaults);
     const saved = JSON.parse(raw);
     const savedIds = new Set(saved.map((c) => c.id));
-    structuredClone(packingDefaults).forEach((cat) => {
+    structuredClone(defaults).forEach((cat) => {
       if (!savedIds.has(cat.id)) saved.push(cat);
     });
     return saved;
-  } catch { return structuredClone(packingDefaults); }
+  } catch { return structuredClone(defaults); }
 }
 
-let packingData = loadPacking();
+let packingData = loadStore(PACKING_KEY, packingDefaults);
 function savePacking() { localStorage.setItem(PACKING_KEY, JSON.stringify(packingData)); }
 
 function renderPacking() {
@@ -641,10 +473,10 @@ document.getElementById("toggleHide").addEventListener("click", (e) => {
     ? "👁️ 完了も表示" : "✅ 完了を隠す";
 });
 
-document.getElementById("resetAll").addEventListener("click", () => {
+document.getElementById("resetPacking").addEventListener("click", () => {
   if (!confirm("持ち物リストを初期状態に戻しますか?")) return;
   localStorage.removeItem(PACKING_KEY);
-  packingData = loadPacking();
+  packingData = loadStore(PACKING_KEY, packingDefaults);
   renderPacking();
 });
 
@@ -665,125 +497,133 @@ document.getElementById("exportData").addEventListener("click", () => {
 });
 
 /* =========================================
- * Timeline view
+ * DisneySea Attractions
  * ========================================= */
-const TIMELINE_KEY = "disney-timeline-v1";
-const CLOSURES_KEY = "disney-closures-v1";
+const ATTRACTIONS_KEY = "disney-attractions-v1";
 
-const timelineDefaults = [
-  { id: "t1",  time: "〜7:00",       action: "アンバサダー発バスで到着", note: "6:40頃のバスで。一般ゲート列へ(ハピエン対象外)" },
-  { id: "t2",  time: "7:00〜開園",    action: "一般ゲートで開園待ち",     note: "土曜の実開園は8:15〜8:30の可能性大" },
-  { id: "t3",  time: "開園直後",      action: "♡ パス取得ラッシュ",        note: "①アナ雪DPA ②エンポーリオSP ③レイジングPP ④ショー抽選" },
-  { id: "t4",  time: "8:30〜9:30",   action: "♪ ソアリン",               note: "朝一スタンバイ60〜90分狙い" },
-  { id: "t5",  time: "9:30〜11:00",  action: "♪ センター・オブ・ジ・アース", note: "朝は30〜50分程度" },
-  { id: "t6",  time: "11:00頃",      action: "♪ アナ雪 (DPA利用)",        note: "前後でFSギフトに寄る (SP不要)" },
-  { id: "t7",  time: "12:00〜13:00", action: "♡ 軽食タイム",              note: "アラビアンorマーメイド / モバイルオーダー推奨" },
-  { id: "t8",  time: "13:00〜14:30", action: "♪ トイ・ストーリー・マニア",   note: "90分超なら2枚目DPA検討 (4,000円)" },
-  { id: "t9",  time: "14:30〜15:30", action: "♪ レイジングスピリッツ",      note: "朝取得のPP利用 / 絶叫・身長117cm以上" },
-  { id: "t10", time: "15:30〜16:30", action: "♪ マジックランプ+休憩",       note: "屋内シアター系で休憩兼ねる / 約23分" },
-  { id: "t11", time: "16:30〜18:00", action: "♡ エンポーリオで買物+夕食",    note: "SP時間に合わせて入店 / しっかり食事" },
-  { id: "t12", time: "18:15〜19:15", action: "☆ ビリーヴ鑑賞",             note: "無料エリアは1h前場所取り / DPAなら2,500円×2" },
-  { id: "t13", time: "19:45〜20:45", action: "☆ 夜のFS散策",              note: "昼と別物の夜景。再訪の価値あり" },
-  { id: "t14", time: "21:00",       action: "★ 閉園 ★",                note: "おつかれさま♪" },
-];
-
-const closuresDefaults = [
+const attractionsDefaults = [
   {
-    id: "closure-attractions",
-    title: "休止中アトラクション",
-    icon: "🚫",
+    id: "area-med",
+    title: "メディテレーニアンハーバー",
+    icon: "⚓",
     items: [
-      { id: "c-indy", text: "インディ・ジョーンズ (長期休止)" },
-      { id: "c-sindbad", text: "シンドバッド (〜4/30)" },
-      { id: "c-20000", text: "海底2万マイル (〜5/11)" },
-      { id: "c-mermaid", text: "マーメイドラグーンシアター (長期)" },
+      { id: "a-soarin", text: "ソアリン:ファンタスティック・フライト" },
+      { id: "a-gondola", text: "ヴェネツィアン・ゴンドラ" },
+      { id: "a-steamer", text: "ディズニーシー・トランジットスチーマーライン" },
+      { id: "a-electric", text: "ディズニーシー・エレクトリックレールウェイ" },
     ],
   },
   {
-    id: "closure-shops",
-    title: "休止中レストラン・ショップ",
-    icon: "🛑",
+    id: "area-mystery",
+    title: "ミステリアスアイランド",
+    icon: "🌋",
     items: [
-      { id: "c-columbia", text: "S.S.コロンビア・ダイニングルーム (〜7/5)" },
-      { id: "c-teddy", text: "テディ・ルーズヴェルト・ラウンジ (〜7/5)" },
-      { id: "c-photo", text: "エクスペディション・フォトアーカイヴ / ペドラーズ・アウトポスト (長期)" },
+      { id: "a-center", text: "センター・オブ・ジ・アース" },
+      { id: "a-20000", text: "海底2万マイル", closed: true, note: "休止中 (〜5/11)" },
+    ],
+  },
+  {
+    id: "area-mermaid",
+    title: "マーメイドラグーン",
+    icon: "🧜",
+    items: [
+      { id: "a-flounder", text: "フランダーのフライングフィッシュコースター" },
+      { id: "a-scuttle", text: "スカットルのスクーター" },
+      { id: "a-jumpin", text: "ジャンピン・ジェリーフィッシュ" },
+      { id: "a-blowfish", text: "ブローフィッシュ・バルーンレース" },
+      { id: "a-whirlpool", text: "ワールプール" },
+      { id: "a-ariel", text: "アリエルのプレイグラウンド" },
+      { id: "a-mermaid-theater", text: "マーメイドラグーンシアター", closed: true, note: "休止中 (長期)" },
+    ],
+  },
+  {
+    id: "area-arabian",
+    title: "アラビアンコースト",
+    icon: "🕌",
+    items: [
+      { id: "a-jasmine", text: "ジャスミンのフライングカーペット" },
+      { id: "a-caravan", text: "キャラバンカルーセル" },
+      { id: "a-sindbad", text: "シンドバッド・ストーリーブック・ヴォヤッジ", closed: true, note: "休止中 (〜4/30)" },
+      { id: "a-lamp", text: "マジックランプシアター" },
+    ],
+  },
+  {
+    id: "area-lost",
+    title: "ロストリバーデルタ",
+    icon: "🌴",
+    items: [
+      { id: "a-indy", text: "インディ・ジョーンズ・アドベンチャー", closed: true, note: "休止中 (長期)" },
+      { id: "a-raging", text: "レイジングスピリッツ" },
+    ],
+  },
+  {
+    id: "area-port",
+    title: "ポートディスカバリー",
+    icon: "🌊",
+    items: [
+      { id: "a-aquatopia", text: "アクアトピア" },
+      { id: "a-nemo", text: "ニモ&フレンズ・シーライダー" },
+    ],
+  },
+  {
+    id: "area-american",
+    title: "アメリカンウォーターフロント",
+    icon: "🚢",
+    items: [
+      { id: "a-toy", text: "トイ・ストーリー・マニア!" },
+      { id: "a-tot", text: "タワー・オブ・テラー" },
+      { id: "a-turtle", text: "タートル・トーク" },
+      { id: "a-bbb", text: "ビッグバンドビート" },
+    ],
+  },
+  {
+    id: "area-fantasy",
+    title: "ファンタジースプリングス",
+    icon: "❄️",
+    items: [
+      { id: "a-frozen", text: "アナと雪の女王:アナとエルサのフローズンジャーニー" },
+      { id: "a-rapunzel", text: "ラプンツェルのランタンフェスティバル" },
+      { id: "a-peter", text: "ピーターパンのネバーランドアドベンチャー" },
+      { id: "a-tinker", text: "フェアリー・ティンカーベルのビジーバギー" },
     ],
   },
 ];
 
-function loadTimeline() {
-  try {
-    const raw = localStorage.getItem(TIMELINE_KEY);
-    if (!raw) return structuredClone(timelineDefaults);
-    return JSON.parse(raw);
-  } catch { return structuredClone(timelineDefaults); }
-}
-function saveTimeline() { localStorage.setItem(TIMELINE_KEY, JSON.stringify(timelineData)); }
+let attractionsData = loadStore(ATTRACTIONS_KEY, attractionsDefaults);
+function saveAttractions() { localStorage.setItem(ATTRACTIONS_KEY, JSON.stringify(attractionsData)); }
 
-function loadClosures() {
-  try {
-    const raw = localStorage.getItem(CLOSURES_KEY);
-    if (!raw) return structuredClone(closuresDefaults);
-    const saved = JSON.parse(raw);
-    const ids = new Set(saved.map((c) => c.id));
-    structuredClone(closuresDefaults).forEach((c) => { if (!ids.has(c.id)) saved.push(c); });
-    return saved;
-  } catch { return structuredClone(closuresDefaults); }
-}
-function saveClosures() { localStorage.setItem(CLOSURES_KEY, JSON.stringify(closuresData)); }
-
-let timelineData = loadTimeline();
-let closuresData = loadClosures();
-
-function renderTimeline() {
-  const app = document.getElementById("timelineApp");
+function renderAttractions() {
+  const app = document.getElementById("attractionsApp");
   app.innerHTML = "";
-  timelineData.forEach((row) => {
-    const el = document.createElement("div");
-    el.className = "tl-row" + (row.done ? " done" : "");
-    el.dataset.id = row.id;
-    el.innerHTML = `
-      <div class="tl-time"><input type="text" data-field="time" value="${escapeHtml(row.time || "")}" placeholder="時間" /></div>
-      <div class="tl-main">
-        <div class="tl-action"><input type="text" data-field="action" value="${escapeHtml(row.action || "")}" placeholder="アクション" /></div>
-        <div class="tl-note"><textarea data-field="note" rows="1" placeholder="メモ・ポイント">${escapeHtml(row.note || "")}</textarea></div>
-      </div>
-      <div class="tl-actions">
-        <input type="checkbox" class="tl-done" ${row.done ? "checked" : ""} title="完了" />
-        <button class="tl-remove" title="削除">✕</button>
-      </div>
-    `;
-    app.appendChild(el);
-    autoSizeTextareas(el);
-  });
 
-  renderClosures();
-}
+  attractionsData.forEach((cat) => {
+    const active = cat.items.filter((i) => !i.closed);
+    const activeDone = active.filter((i) => i.done).length;
 
-function renderClosures() {
-  const app = document.getElementById("closuresApp");
-  app.innerHTML = "";
-  closuresData.forEach((cat) => {
     const section = document.createElement("section");
     section.className = "category";
     section.innerHTML = `
       <h2>
         <span class="icon">${cat.icon}</span>
         ${escapeHtml(cat.title)}
-        <span class="cat-count">${cat.items.length}件</span>
+        <span class="cat-count">${activeDone} / ${active.length}</span>
       </h2>
       <ul class="items" data-cat="${cat.id}"></ul>
       <form class="add-form" data-cat="${cat.id}">
-        <input type="text" placeholder="項目を追加…" />
+        <input type="text" placeholder="アトラクションを追加…" />
         <button type="submit">追加</button>
       </form>
     `;
     const ul = section.querySelector("ul");
     cat.items.forEach((it) => {
       const li = document.createElement("li");
+      li.className = [it.done ? "done" : "", it.closed ? "closed" : ""].filter(Boolean).join(" ");
       li.dataset.id = it.id;
+      const badge = it.closed ? `<span class="badge">休止中</span>` : "";
+      const note = it.note ? `<span class="note">${escapeHtml(it.note)}</span>` : "";
       li.innerHTML = `
-        <span class="label" style="padding-left:4px">${escapeHtml(it.text)}</span>
+        <input type="checkbox" ${it.done ? "checked" : ""} ${it.closed ? "disabled" : ""} />
+        <span class="label">${escapeHtml(it.text)}${badge}${note}</span>
         <button class="item-remove" title="削除">✕</button>
       `;
       ul.appendChild(li);
@@ -792,85 +632,42 @@ function renderClosures() {
   });
 }
 
-function autoSizeTextareas(root) {
-  root.querySelectorAll("textarea").forEach((t) => {
-    t.style.height = "auto";
-    t.style.height = t.scrollHeight + "px";
-  });
-}
-
-// Timeline row: input / delete / done toggle
-document.getElementById("timelineApp").addEventListener("input", (e) => {
-  const row = e.target.closest(".tl-row");
-  if (!row) return;
-  const field = e.target.dataset.field;
-  if (!field) return;
-  const r = timelineData.find((x) => x.id === row.dataset.id);
-  r[field] = e.target.value;
-  if (e.target.tagName === "TEXTAREA") {
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }
-  saveTimeline();
-});
-
-document.getElementById("timelineApp").addEventListener("click", (e) => {
-  const row = e.target.closest(".tl-row");
-  if (!row) return;
-  if (e.target.classList.contains("tl-remove")) {
-    timelineData = timelineData.filter((x) => x.id !== row.dataset.id);
-    saveTimeline(); renderTimeline();
-  }
-});
-
-document.getElementById("timelineApp").addEventListener("change", (e) => {
-  if (!e.target.classList.contains("tl-done")) return;
-  const row = e.target.closest(".tl-row");
-  const r = timelineData.find((x) => x.id === row.dataset.id);
-  r.done = e.target.checked;
-  saveTimeline(); renderTimeline();
-});
-
-document.getElementById("tlAdd").addEventListener("click", () => {
-  timelineData.push({ id: uid("t"), time: "", action: "", note: "", done: false });
-  saveTimeline();
-  renderTimeline();
-  // focus the new row's time field
-  const rows = document.querySelectorAll("#timelineApp .tl-row");
-  rows[rows.length - 1]?.querySelector('input[data-field="time"]')?.focus();
-});
-
-document.getElementById("tlReset").addEventListener("click", () => {
-  if (!confirm("タイムラインを初期状態に戻しますか?")) return;
-  localStorage.removeItem(TIMELINE_KEY);
-  localStorage.removeItem(CLOSURES_KEY);
-  timelineData = loadTimeline();
-  closuresData = loadClosures();
-  renderTimeline();
-});
-
-// Closures list events
-document.getElementById("closuresApp").addEventListener("click", (e) => {
+document.getElementById("attractionsApp").addEventListener("click", (e) => {
   const li = e.target.closest("li[data-id]");
   if (!li) return;
-  if (!e.target.classList.contains("item-remove")) return;
   const catId = li.parentElement.dataset.cat;
-  const cat = closuresData.find((c) => c.id === catId);
-  cat.items = cat.items.filter((i) => i.id !== li.dataset.id);
-  saveClosures(); renderClosures();
+  const id = li.dataset.id;
+  const cat = attractionsData.find((c) => c.id === catId);
+  if (e.target.classList.contains("item-remove")) {
+    cat.items = cat.items.filter((i) => i.id !== id);
+    saveAttractions(); renderAttractions();
+    e.stopPropagation();
+    return;
+  }
+  const it = cat.items.find((i) => i.id === id);
+  if (it.closed) return;
+  it.done = !it.done;
+  saveAttractions(); renderAttractions();
 });
 
-document.getElementById("closuresApp").addEventListener("submit", (e) => {
+document.getElementById("attractionsApp").addEventListener("submit", (e) => {
   if (!e.target.classList.contains("add-form")) return;
   e.preventDefault();
   const input = e.target.querySelector("input");
   const text = input.value.trim();
   if (!text) return;
   const catId = e.target.dataset.cat;
-  const cat = closuresData.find((c) => c.id === catId);
-  cat.items.push({ id: uid("c"), text });
+  const cat = attractionsData.find((c) => c.id === catId);
+  cat.items.push({ id: uid("a"), text, done: false });
   input.value = "";
-  saveClosures(); renderClosures();
+  saveAttractions(); renderAttractions();
+});
+
+document.getElementById("resetAttractions").addEventListener("click", () => {
+  if (!confirm("アトラクションリストを初期状態に戻しますか?")) return;
+  localStorage.removeItem(ATTRACTIONS_KEY);
+  attractionsData = loadStore(ATTRACTIONS_KEY, attractionsDefaults);
+  renderAttractions();
 });
 
 /* =========================================
@@ -889,8 +686,7 @@ updateCountdown();
 setInterval(updateCountdown, 60000);
 
 renderPacking();
-renderTimeline();
-switchView(localStorage.getItem(VIEW_KEY) || "packing");
+renderAttractions();
 </script>
 </body>
 </html>
