@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ディズニー旅行 準備TODO (4/24-25)</title>
+<title>ディズニー旅行 持ち物リスト (4/24-25)</title>
 <style>
   :root {
     --bg: #0b1e3f;
@@ -253,7 +253,7 @@
 </head>
 <body>
 <header>
-  <h1>✨ ディズニー旅行 準備TODO</h1>
+  <h1>🎒 ディズニー旅行 持ち物リスト</h1>
   <div class="sub">4/24(金) - 4/25(土) / ディズニーアンバサダーホテル × ディズニーシー</div>
   <div class="countdown" id="countdown">出発まで計算中…</div>
 </header>
@@ -279,30 +279,6 @@ const STORAGE_KEY = "disney-todo-2026-04-24";
 const TRIP_START = new Date("2026-04-24T09:00:00+09:00");
 
 const defaultData = [
-  {
-    id: "reservation",
-    title: "予約・チケット確認",
-    icon: "🎫",
-    items: [
-      { id: "hotel", text: "アンバサダーホテルの予約確認", note: "予約番号・チェックイン時間(15:00〜)" },
-      { id: "ticket", text: "ディズニーシーのパークチケット準備", note: "QRコードをスクショ or 印刷" },
-      { id: "dpa", text: "ディズニー・プレミアアクセス(DPA)の方針を決める", note: "当日アプリで購入" },
-      { id: "show", text: "ショー抽選・鑑賞エリア方針", note: "BBBやショーの時間を確認" },
-      { id: "restaurant", text: "レストラン予約状況の確認", note: "プライオリティ・シーティング" },
-      { id: "transport", text: "行き/帰りの交通手段を確定", note: "舞浜駅までのルート・時刻" },
-    ],
-  },
-  {
-    id: "app",
-    title: "アプリ・デジタル準備",
-    icon: "📱",
-    items: [
-      { id: "tdr-app", text: "東京ディズニーリゾート・アプリを最新版に更新" },
-      { id: "login", text: "アプリにパークチケットを登録", note: "家族分もまとめて" },
-      { id: "notify", text: "通知をONにしておく", note: "スタンバイパス・DPAの通知用" },
-      { id: "map", text: "パーク内マップを事前に眺めておく", note: "周りたい順を軽くイメージ" },
-    ],
-  },
   {
     id: "packing",
     title: "持ち物 (必須)",
@@ -334,7 +310,7 @@ const defaultData = [
   },
   {
     id: "hotel",
-    title: "ホテル宿泊準備",
+    title: "ホテル宿泊の持ち物",
     icon: "🛏️",
     items: [
       { id: "change", text: "着替え (1日分 + 予備)" },
@@ -343,31 +319,6 @@ const defaultData = [
       { id: "toothbrush", text: "歯ブラシ (アメニティあるか事前確認)" },
       { id: "contact", text: "コンタクト / メガネ" },
       { id: "charger-hotel", text: "延長コード or 複数口充電器" },
-    ],
-  },
-  {
-    id: "pre-day",
-    title: "前日(4/23)までにやること",
-    icon: "📅",
-    items: [
-      { id: "weather", text: "4/24・4/25の天気予報を確認" },
-      { id: "park-hours", text: "パークの運営時間を確認", note: "開園・閉園・ショー時間" },
-      { id: "schedule", text: "1日のざっくりスケジュールを決める", note: "朝イチで何に乗るか" },
-      { id: "charge-all", text: "スマホ・モバイルバッテリーをフル充電" },
-      { id: "cash", text: "現金を少し下ろしておく" },
-      { id: "alarm", text: "当日の目覚ましセット" },
-      { id: "pack-final", text: "最終パッキングチェック" },
-    ],
-  },
-  {
-    id: "day-of",
-    title: "当日(4/24)朝",
-    icon: "☀️",
-    items: [
-      { id: "breakfast", text: "朝ごはんを食べる", note: "パーク内は混む" },
-      { id: "check-ticket", text: "チケットがアプリで開けるか最終確認" },
-      { id: "early-arrive", text: "開園30〜45分前には舞浜到着を目安に" },
-      { id: "luggage", text: "荷物はホテルに預ける or 宅配で先送り" },
     ],
   },
 ];
