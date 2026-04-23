@@ -60,10 +60,10 @@
   .top-nav {
     position: absolute;
     top: 12px;
-    right: 12px;
-    left: 12px;
+    right: 10px;
+    left: 10px;
     display: flex;
-    gap: 6px;
+    gap: 5px;
     z-index: 10;
     justify-content: flex-end;
     overflow-x: auto;
@@ -75,9 +75,9 @@
     background: rgba(255,255,255,.12);
     color: #fff;
     border: 1px solid rgba(255,255,255,.25);
-    padding: 7px 12px;
+    padding: 6px 10px;
     border-radius: 999px;
-    font-size: 12.5px;
+    font-size: 11.5px;
     cursor: pointer;
     backdrop-filter: blur(4px);
     transition: all .15s ease;
@@ -85,6 +85,7 @@
     text-decoration: none;
     display: inline-flex;
     align-items: center;
+    flex-shrink: 0;
   }
   .top-nav button:hover, .top-nav .nav-link:hover { background: rgba(255,255,255,.22); }
   .top-nav button.active {
@@ -519,7 +520,8 @@
 
   @media (max-width: 480px) {
     header h1 { font-size: 20px; }
-    .top-nav button, .top-nav .nav-link { padding: 6px 10px; font-size: 11.5px; flex-shrink: 0; }
+    .top-nav button, .top-nav .nav-link { padding: 5px 8px; font-size: 11px; }
+    .top-nav { gap: 4px; }
   }
 </style>
 </head>
@@ -527,7 +529,7 @@
 <header>
   <nav class="top-nav" id="topNav">
     <button data-view="packing" class="active">🎒 持ち物</button>
-    <button data-view="attractions">🎢 アトラクション</button>
+    <button data-view="attractions">🎢 アトラク</button>
     <button data-view="passes">🎟️ パス</button>
     <button data-view="map">🗺️ マップ</button>
     <a class="nav-link" href="https://walica.jp/group/01KCY2N0RNZSMS82SME14TVRST" target="_blank" rel="noopener">💰 お金</a>
