@@ -289,6 +289,46 @@
   ul.items li:hover .item-remove { opacity: 1; }
   .item-remove:hover { color: #e11d48; }
 
+  .amenity-card {
+    margin-top: 22px;
+    padding: 14px 16px 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.12);
+    color: rgba(255,255,255,.55);
+    font-size: 12px;
+    line-height: 1.55;
+  }
+  .amenity-card h3 {
+    margin: 0 0 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgba(255,255,255,.7);
+    letter-spacing: .02em;
+  }
+  .amenity-card .tagline {
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: rgba(255,255,255,.4);
+  }
+  .amenity-card h4 {
+    margin: 10px 0 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: rgba(255,255,255,.6);
+  }
+  .amenity-card ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .amenity-card li { margin: 1px 0; }
+  .amenity-card .src {
+    margin-top: 10px;
+    font-size: 10.5px;
+    color: rgba(255,255,255,.35);
+  }
+  .amenity-card .src a { color: inherit; text-decoration: underline; }
+
   footer {
     text-align: center;
     color: rgba(255,255,255,.7);
@@ -328,6 +368,36 @@
       <button id="exportData">💾 エクスポート</button>
     </div>
     <div id="packingApp"></div>
+
+    <aside class="amenity-card" aria-label="参考アメニティ">
+      <h3>🏨 アンバサダーホテル ミッキーマウスルーム(魔法使いの弟子) アメニティ</h3>
+      <div class="tagline">※ 参考情報 / 2025年10月以降の公開情報ベース</div>
+
+      <h4>持ち帰りOK</h4>
+      <ul>
+        <li>歯ブラシ</li>
+        <li>ヘアブラシ</li>
+        <li>室内用スリッパ</li>
+        <li>アメニティキット (綿棒・コットン・ヘアゴム)</li>
+        <li>ウォッシュクロス</li>
+        <li>スキンケアセット</li>
+        <li>入浴剤</li>
+        <li>お子様用スリッパ / 歯ブラシ / マグカップ</li>
+      </ul>
+
+      <h4>備品 (部屋に常備・持ち帰り不可)</h4>
+      <ul>
+        <li>タオル類</li>
+        <li>ハンドソープ</li>
+        <li>ヘアドライヤー</li>
+        <li>パジャマ (大人・お子様)</li>
+        <li>シャンプー / コンディショナー / ボディソープ (ディスペンサー式)</li>
+      </ul>
+
+      <div class="src">
+        出典: <a href="https://www.tokyodisneyresort.jp/hotel/dah/room/detail/mickey_sa/" target="_blank" rel="noopener">東京ディズニーリゾート公式</a>
+      </div>
+    </aside>
   </section>
 
   <!-- Attractions view -->
