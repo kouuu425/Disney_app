@@ -703,12 +703,12 @@
     <section class="category wishlist-card">
       <h2>
         <span class="icon">🎯</span>
-        今日乗りたい (優先順)
+        今日行きたい (優先順)
         <span class="cat-count" id="wishlistCount"></span>
       </h2>
       <ul class="items wishlist-items" id="wishlistItems"></ul>
     </section>
-    <div class="area-drop-hint">↑ 下のアトラクションの <b>☆</b> をタップで追加。ブロック内の並び替えは長押し→ドラッグ。</div>
+    <div class="area-drop-hint">↑ 下のアトラクション・ショップの <b>☆</b> をタップで追加。ブロック内の並び替えは長押し→ドラッグ。</div>
 
     <div class="toolbar">
       <button id="resetAttractions">🔄 アトラクションをリセット</button>
@@ -1401,9 +1401,11 @@ function renderShops() {
       const note = noteParts.length
         ? `<span class="note">${escapeHtml(noteParts.join(" / "))}</span>`
         : "";
+      const isStarred = wishlistIds.includes(it.id);
       li.innerHTML = `
         <input type="checkbox" ${it.done ? "checked" : ""} ${it.closed ? "disabled" : ""} />
         <span class="label">${escapeHtml(it.text)}${passTag}${closedBadge}${note}</span>
+        <button class="star-btn ${isStarred ? "active" : ""}" title="${isStarred ? "優先順から外す" : "優先順に追加"}">${isStarred ? "⭐" : "☆"}</button>
         <button class="item-remove" title="削除">✕</button>
       `;
       ul.appendChild(li);
@@ -1418,6 +1420,18 @@ document.getElementById("shopsApp").addEventListener("click", (e) => {
   const catId = li.parentElement.dataset.cat;
   const id = li.dataset.id;
   const cat = shopsData.find((c) => c.id === catId);
+  if (e.target.classList.contains("star-btn")) {
+    if (wishlistIds.includes(id)) {
+      wishlistIds = wishlistIds.filter((wid) => wid !== id);
+    } else {
+      wishlistIds.push(id);
+    }
+    saveWishlist();
+    renderWishlist();
+    renderShops();
+    e.stopPropagation();
+    return;
+  }
   if (e.target.classList.contains("item-remove")) {
     cat.items = cat.items.filter((i) => i.id !== id);
     saveShops(); renderShops();
@@ -1459,10 +1473,13 @@ let wishlistIds = [];
 try { wishlistIds = JSON.parse(localStorage.getItem(WISHLIST_KEY) || "[]"); } catch {}
 function saveWishlist() { localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlistIds)); }
 
-function findAttraction(id) {
-  for (const cat of attractionsData) {
-    const it = cat.items.find((i) => i.id === id);
-    if (it) return it;
+function findWishlistItem(id) {
+  const sources = [attractionsData, (typeof shopsData !== "undefined" ? shopsData : [])];
+  for (const data of sources) {
+    for (const cat of data) {
+      const it = cat.items.find((i) => i.id === id);
+      if (it) return it;
+    }
   }
   return null;
 }
@@ -1472,12 +1489,12 @@ function renderWishlist() {
   const countEl = document.getElementById("wishlistCount");
   ul.innerHTML = "";
   // prune ids that no longer exist (e.g. user deleted from area)
-  wishlistIds = wishlistIds.filter((id) => !!findAttraction(id));
+  wishlistIds = wishlistIds.filter((id) => !!findWishlistItem(id));
 
   if (wishlistIds.length === 0) {
     const li = document.createElement("li");
     li.className = "wishlist-empty";
-    li.textContent = "下のアトラクションの ☆ をタップして優先順を作ろう";
+    li.textContent = "下のアトラクション・ショップの ☆ をタップして優先順を作ろう";
     ul.appendChild(li);
     countEl.textContent = "";
     saveWishlist();
@@ -1485,7 +1502,7 @@ function renderWishlist() {
   }
 
   wishlistIds.forEach((id, i) => {
-    const it = findAttraction(id);
+    const it = findWishlistItem(id);
     const li = document.createElement("li");
     li.dataset.id = id;
     const passTag = it.pass
@@ -1511,6 +1528,7 @@ document.getElementById("wishlistItems").addEventListener("click", (e) => {
   wishlistIds = wishlistIds.filter((id) => id !== li.dataset.id);
   renderWishlist();
   renderAttractions();
+  if (typeof renderShops === "function") renderShops();
 });
 
 document.getElementById("resetWishlist").addEventListener("click", () => {
@@ -1519,6 +1537,7 @@ document.getElementById("resetWishlist").addEventListener("click", () => {
   wishlistIds = [];
   renderWishlist();
   renderAttractions();
+  if (typeof renderShops === "function") renderShops();
 });
 
 /* SortableJS init - reorder within the wishlist only. */
