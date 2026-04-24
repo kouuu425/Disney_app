@@ -330,6 +330,23 @@
   .star-btn:active { transform: scale(1.25); }
   .star-btn.active { color: #f5b400; opacity: 1; }
 
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 4px 14px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .section-divider .line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,.22);
+  }
+  .section-divider .label { flex-shrink: 0; }
+
   .amenity-card {
     margin-top: 22px;
     padding: 14px 16px 16px;
@@ -698,6 +715,12 @@
       <button id="resetWishlist">🎯 優先順をリセット</button>
     </div>
     <div id="attractionsApp"></div>
+
+    <div class="section-divider"><span class="line"></span><span class="label">🛍️ ショップ</span><span class="line"></span></div>
+    <div class="toolbar">
+      <button id="resetShops">🔄 ショップをリセット</button>
+    </div>
+    <div id="shopsApp"></div>
   </section>
 
   <!-- Passes view -->
@@ -1242,6 +1265,180 @@ document.getElementById("resetAttractions").addEventListener("click", () => {
 });
 
 /* =========================================
+ * Shops
+ * ========================================= */
+const SHOPS_KEY = "disney-shops-v1";
+
+const shopsDefaults = [
+  {
+    id: "shop-area-med",
+    title: "メディテレーニアンハーバー",
+    icon: "⚓",
+    items: [
+      { id: "s-emporio", text: "エンポーリオ", note: "パーク最大級のグッズショップ / 混雑日はSP対象あり" },
+      { id: "s-valentina", text: "ヴァレンティーナズ・スウィート", note: "お菓子・スーベニアメダル系" },
+      { id: "s-galleria", text: "ガレリア・ディズニー" },
+      { id: "s-figaro", text: "フィガロズ・クロージア" },
+      { id: "s-miramare", text: "ミラマーレ" },
+    ],
+  },
+  {
+    id: "shop-area-american",
+    title: "アメリカンウォーターフロント",
+    icon: "🚢",
+    items: [
+      { id: "s-mcducks", text: "マクダックス・デパートメントストア", pass: "SP", passNote: "ダッフィー系グッズで混雑時はSP対象" },
+      { id: "s-steamboat", text: "スチームボート・ミッキーズ" },
+      { id: "s-tot", text: "タワー・オブ・テラー・メモラビリア" },
+      { id: "s-newyork-deli", text: "ニューヨーク・デリ (グッズコーナー)" },
+      { id: "s-aunt-peg", text: "アーント・ペグズ・ヴィレッジストア" },
+    ],
+  },
+  {
+    id: "shop-area-port",
+    title: "ポートディスカバリー",
+    icon: "🌊",
+    items: [
+      { id: "s-skywatcher", text: "スカイウォッチャー・スーヴェニア" },
+    ],
+  },
+  {
+    id: "shop-area-lost",
+    title: "ロストリバーデルタ",
+    icon: "🌴",
+    items: [
+      { id: "s-lookout", text: "ルックアウト・トレーダー" },
+      { id: "s-pedlars", text: "ペドラーズ・アウトポスト", closed: true, note: "休止中 (長期)" },
+      { id: "s-photo", text: "エクスペディション・フォトアーカイヴ", closed: true, note: "休止中 (長期)" },
+    ],
+  },
+  {
+    id: "shop-area-arabian",
+    title: "アラビアンコースト",
+    icon: "🕌",
+    items: [
+      { id: "s-agrabah", text: "アグラバー・マーケットプレイス" },
+      { id: "s-abus", text: "アブーズ・バザール" },
+    ],
+  },
+  {
+    id: "shop-area-mermaid",
+    title: "マーメイドラグーン",
+    icon: "🧜",
+    items: [
+      { id: "s-sleepywhale", text: "スリーピーホエール・ショップ" },
+      { id: "s-mermaidtreasure", text: "マーメイドトレジャー" },
+    ],
+  },
+  {
+    id: "shop-area-mystery",
+    title: "ミステリアスアイランド",
+    icon: "🌋",
+    items: [
+      { id: "s-nautilus", text: "ノーチラスギフト" },
+    ],
+  },
+  {
+    id: "shop-area-fantasy",
+    title: "ファンタジースプリングス",
+    icon: "❄️",
+    items: [
+      { id: "s-fsgift", text: "ファンタジースプリングス・ギフト", note: "パーク内から入場 / FS限定グッズ" },
+    ],
+  },
+];
+
+let shopsData = loadStore(SHOPS_KEY, shopsDefaults);
+function saveShops() { localStorage.setItem(SHOPS_KEY, JSON.stringify(shopsData)); }
+
+function renderShops() {
+  const app = document.getElementById("shopsApp");
+  app.innerHTML = "";
+
+  shopsData.forEach((cat) => {
+    const active = cat.items.filter((i) => !i.closed);
+    const activeDone = active.filter((i) => i.done).length;
+
+    const section = document.createElement("section");
+    section.className = "category";
+    section.innerHTML = `
+      <h2>
+        <span class="icon">${cat.icon}</span>
+        ${escapeHtml(cat.title)}
+        <span class="cat-count">${activeDone} / ${active.length}</span>
+      </h2>
+      <ul class="items" data-cat="${cat.id}"></ul>
+      <form class="add-form" data-cat="${cat.id}">
+        <input type="text" placeholder="ショップを追加…" />
+        <button type="submit">追加</button>
+      </form>
+    `;
+    const ul = section.querySelector("ul");
+    cat.items.forEach((it) => {
+      const li = document.createElement("li");
+      li.className = [it.done ? "done" : "", it.closed ? "closed" : ""].filter(Boolean).join(" ");
+      li.dataset.id = it.id;
+      const closedBadge = it.closed ? `<span class="badge">休止中</span>` : "";
+      const passTag = it.pass
+        ? `<span class="pass-tag ${it.pass.toLowerCase()}" title="${it.pass}${it.passNote ? " (" + escapeHtml(it.passNote) + ")" : ""}">${it.pass}</span>`
+        : "";
+      const noteParts = [];
+      if (it.passNote) noteParts.push(`${it.pass}: ${it.passNote}`);
+      if (it.note) noteParts.push(it.note);
+      const note = noteParts.length
+        ? `<span class="note">${escapeHtml(noteParts.join(" / "))}</span>`
+        : "";
+      li.innerHTML = `
+        <input type="checkbox" ${it.done ? "checked" : ""} ${it.closed ? "disabled" : ""} />
+        <span class="label">${escapeHtml(it.text)}${passTag}${closedBadge}${note}</span>
+        <button class="item-remove" title="削除">✕</button>
+      `;
+      ul.appendChild(li);
+    });
+    app.appendChild(section);
+  });
+}
+
+document.getElementById("shopsApp").addEventListener("click", (e) => {
+  const li = e.target.closest("li[data-id]");
+  if (!li) return;
+  const catId = li.parentElement.dataset.cat;
+  const id = li.dataset.id;
+  const cat = shopsData.find((c) => c.id === catId);
+  if (e.target.classList.contains("item-remove")) {
+    cat.items = cat.items.filter((i) => i.id !== id);
+    saveShops(); renderShops();
+    e.stopPropagation();
+    return;
+  }
+  const it = cat.items.find((i) => i.id === id);
+  if (it.closed) return;
+  it.done = !it.done;
+  saveShops(); renderShops();
+});
+
+document.getElementById("shopsApp").addEventListener("submit", (e) => {
+  if (!e.target.classList.contains("add-form")) return;
+  e.preventDefault();
+  const input = e.target.querySelector("input");
+  const text = input.value.trim();
+  if (!text) return;
+  const catId = e.target.dataset.cat;
+  const cat = shopsData.find((c) => c.id === catId);
+  cat.items.push({ id: uid("s"), text, done: false });
+  input.value = "";
+  saveShops(); renderShops();
+});
+
+document.getElementById("resetShops").addEventListener("click", () => {
+  if (!confirm("ショップリストを初期状態に戻しますか?")) return;
+  localStorage.removeItem(SHOPS_KEY);
+  shopsData = structuredClone(shopsDefaults);
+  saveShops();
+  renderShops();
+});
+
+/* =========================================
  * Wishlist (drag target at top of attractions)
  * ========================================= */
 const WISHLIST_KEY = "disney-wishlist-v1";
@@ -1351,6 +1548,7 @@ setInterval(updateCountdown, 60000);
 
 renderPacking();
 renderAttractions();
+renderShops();
 renderWishlist();
 switchView(localStorage.getItem(VIEW_KEY) || "packing");
 
