@@ -631,6 +631,40 @@
     font-weight: 600;
   }
   .park-map-card a:hover { text-decoration: underline; }
+  .bus-card .bus-table {
+    width: 100%;
+    margin: 8px 0 10px;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .bus-card .bus-table td {
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--border);
+    vertical-align: top;
+  }
+  .bus-card .bus-table td:first-child {
+    color: var(--muted);
+    width: 90px;
+    white-space: nowrap;
+  }
+  .bus-card .bus-table td:last-child { font-weight: 500; }
+  .bus-card .muted { color: var(--muted); font-weight: 400; font-size: 11.5px; }
+  .bus-card .bus-tip {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin: 4px 0 10px;
+    padding: 8px 10px;
+    background: #fafbff;
+    border-left: 3px solid var(--accent-2);
+    border-radius: 4px;
+    line-height: 1.5;
+  }
+  .bus-card .bus-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+  }
 
   @media (max-width: 480px) {
     header h1 { font-size: 20px; }
@@ -843,6 +877,24 @@
       <a href="https://www.tokyodisneyresort.jp/tds/map.html" target="_blank" rel="noopener">公式パークマップ</a>
       または東京ディズニーリゾート・アプリ内のマップが便利です。
     </div>
+
+    <div class="park-map-card bus-card">
+      <h4>🚌 アンバサダー → ディズニーシー (リゾートクルーザー)</h4>
+      <table class="bus-table">
+        <tr><td>始発</td><td>6:15</td></tr>
+        <tr><td>終バス</td><td>22:55頃 <span class="muted">(閉園時間による)</span></td></tr>
+        <tr><td>所要時間</td><td>約5分</td></tr>
+        <tr><td>運行間隔</td><td>10〜15分 <span class="muted">(朝ピーク 7〜10分)</span></td></tr>
+        <tr><td>料金</td><td>無料 (宿泊者ほか利用可)</td></tr>
+        <tr><td>パーク側降車</td><td>バスターミナル・ノース 5番のりば</td></tr>
+      </table>
+      <div class="bus-tip">💡 4/25(土)は開園前の混雑対策で、6:40頃のバスに乗って一般ゲートに並ぶのがおすすめ(事前プラン参考)。</div>
+      <div class="bus-links">
+        <a href="https://media2.tokyodisneyresort.jp/home/hotel/dah/access/pdf/timetable_2025.pdf" target="_blank" rel="noopener">📄 公式時刻表PDF</a>
+        <a href="https://www.tokyodisneyresort.jp/hotel/dah/access.html" target="_blank" rel="noopener">🏨 アンバサダー交通アクセス</a>
+      </div>
+    </div>
+
     <p class="map-hint">※ ピンチで拡大縮小、ドラッグで移動できます。衛星ビューに切り替えるとパーク全体の構造が分かりやすいです。</p>
   </section>
 </main>
