@@ -1348,7 +1348,20 @@ const shopsDefaults = [
   },
 ];
 
-let shopsData = loadStore(SHOPS_KEY, shopsDefaults);
+function loadShops() {
+  try {
+    const raw = localStorage.getItem(SHOPS_KEY);
+    if (!raw) return structuredClone(shopsDefaults);
+    const saved = JSON.parse(raw);
+    const savedIds = new Set(saved.map((c) => c.id));
+    structuredClone(shopsDefaults).forEach((cat) => {
+      if (!savedIds.has(cat.id)) saved.push(cat);
+    });
+    return saved;
+  } catch { return structuredClone(shopsDefaults); }
+}
+
+let shopsData = loadShops();
 function saveShops() { localStorage.setItem(SHOPS_KEY, JSON.stringify(shopsData)); }
 
 function renderShops() {
