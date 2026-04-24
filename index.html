@@ -314,6 +314,22 @@
   ul.items li:hover .item-remove { opacity: 1; }
   .item-remove:hover { color: #e11d48; }
 
+  .star-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px 6px;
+    align-self: center;
+    color: #c9cfda;
+    opacity: .8;
+    transition: transform .1s ease, color .15s ease;
+    flex-shrink: 0;
+  }
+  .star-btn:active { transform: scale(1.25); }
+  .star-btn.active { color: #f5b400; opacity: 1; }
+
   .amenity-card {
     margin-top: 22px;
     padding: 14px 16px 16px;
@@ -675,7 +691,7 @@
       </h2>
       <ul class="items wishlist-items" id="wishlistItems"></ul>
     </section>
-    <div class="area-drop-hint">↑ 下のアトラクションを<b>長押ししてドラッグ</b>すると、ここに追加できます。並び替えもドラッグでできます。</div>
+    <div class="area-drop-hint">↑ 下のアトラクションの <b>☆</b> をタップで追加。ブロック内の並び替えは長押し→ドラッグ。</div>
 
     <div class="toolbar">
       <button id="resetAttractions">🔄 アトラクションをリセット</button>
@@ -1161,9 +1177,11 @@ function renderAttractions() {
       const note = noteParts.length
         ? `<span class="note">${escapeHtml(noteParts.join(" / "))}</span>`
         : "";
+      const isStarred = wishlistIds.includes(it.id);
       li.innerHTML = `
         <input type="checkbox" ${it.done ? "checked" : ""} ${it.closed ? "disabled" : ""} />
         <span class="label">${escapeHtml(it.text)}${passTag}${closedBadge}${note}</span>
+        <button class="star-btn ${isStarred ? "active" : ""}" title="${isStarred ? "優先順から外す" : "優先順に追加"}">${isStarred ? "⭐" : "☆"}</button>
         <button class="item-remove" title="削除">✕</button>
       `;
       ul.appendChild(li);
@@ -1178,6 +1196,18 @@ document.getElementById("attractionsApp").addEventListener("click", (e) => {
   const catId = li.parentElement.dataset.cat;
   const id = li.dataset.id;
   const cat = attractionsData.find((c) => c.id === catId);
+  if (e.target.classList.contains("star-btn")) {
+    if (wishlistIds.includes(id)) {
+      wishlistIds = wishlistIds.filter((wid) => wid !== id);
+    } else {
+      wishlistIds.push(id);
+    }
+    saveWishlist();
+    renderWishlist();
+    renderAttractions();
+    e.stopPropagation();
+    return;
+  }
   if (e.target.classList.contains("item-remove")) {
     cat.items = cat.items.filter((i) => i.id !== id);
     saveAttractions(); renderAttractions();
@@ -1237,7 +1267,7 @@ function renderWishlist() {
   if (wishlistIds.length === 0) {
     const li = document.createElement("li");
     li.className = "wishlist-empty";
-    li.textContent = "ここに乗りたいアトラクションをドラッグして優先順位を作ろう";
+    li.textContent = "下のアトラクションの ☆ をタップして優先順を作ろう";
     ul.appendChild(li);
     countEl.textContent = "";
     saveWishlist();
@@ -1270,6 +1300,7 @@ document.getElementById("wishlistItems").addEventListener("click", (e) => {
   if (!li) return;
   wishlistIds = wishlistIds.filter((id) => id !== li.dataset.id);
   renderWishlist();
+  renderAttractions();
 });
 
 document.getElementById("resetWishlist").addEventListener("click", () => {
@@ -1277,66 +1308,31 @@ document.getElementById("resetWishlist").addEventListener("click", () => {
   if (!confirm("優先順リストを空にしますか?")) return;
   wishlistIds = [];
   renderWishlist();
+  renderAttractions();
 });
 
-/* SortableJS init - drag from area lists into wishlist, reorder within. */
-let areaSortables = [];
+/* SortableJS init - reorder within the wishlist only. */
 function initSortables() {
   if (typeof Sortable === "undefined") return; // CDN not loaded yet
-  // Wishlist: accept drops, allow internal reorder
-  if (!document.getElementById("wishlistItems").__sortable) {
-    const s = new Sortable(document.getElementById("wishlistItems"), {
-      group: { name: "attractions", pull: false, put: true },
-      animation: 150,
-      filter: ".wishlist-empty, .wl-remove",
-      preventOnFilter: false,
-      delay: 200,
-      delayOnTouchOnly: true,
-      ghostClass: "drag-ghost",
-      chosenClass: "drag-chosen",
-      onAdd(evt) {
-        const id = evt.item.dataset.id;
-        evt.item.remove(); // we re-render from data
-        if (id && !wishlistIds.includes(id)) {
-          const insertAt = Math.min(evt.newIndex, wishlistIds.length);
-          wishlistIds.splice(insertAt, 0, id);
-        }
-        renderWishlist();
-      },
-      onUpdate() {
-        const ids = Array.from(
-          document.querySelectorAll("#wishlistItems li[data-id]")
-        ).map((el) => el.dataset.id);
-        wishlistIds = ids;
-        renderWishlist();
-      },
-    });
-    document.getElementById("wishlistItems").__sortable = s;
-  }
-  // Area lists: items can be cloned out via long-press; original stays
-  areaSortables.forEach((s) => s.destroy());
-  areaSortables = [];
-  document.querySelectorAll("#attractionsApp ul.items").forEach((ul) => {
-    areaSortables.push(
-      new Sortable(ul, {
-        group: { name: "attractions", pull: "clone", put: false },
-        sort: false,
-        animation: 150,
-        delay: 220,
-        delayOnTouchOnly: true,
-        ghostClass: "drag-ghost",
-        chosenClass: "drag-chosen",
-      })
-    );
+  const wlEl = document.getElementById("wishlistItems");
+  if (wlEl.__sortable) return;
+  wlEl.__sortable = new Sortable(wlEl, {
+    animation: 150,
+    filter: ".wishlist-empty, .wl-remove",
+    preventOnFilter: false,
+    delay: 200,
+    delayOnTouchOnly: true,
+    ghostClass: "drag-ghost",
+    chosenClass: "drag-chosen",
+    onUpdate() {
+      const ids = Array.from(
+        document.querySelectorAll("#wishlistItems li[data-id]")
+      ).map((el) => el.dataset.id);
+      wishlistIds = ids;
+      renderWishlist();
+    },
   });
 }
-
-// re-init area sortables every time attractions re-render
-const _origRenderAttractions = renderAttractions;
-renderAttractions = function () {
-  _origRenderAttractions();
-  initSortables();
-};
 
 /* =========================================
  * Countdown + init
