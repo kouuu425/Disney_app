@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ディズニー旅行 (4/24-25)</title>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
 <style>
   :root {
     --bg: #0b1e3f;
@@ -470,6 +471,72 @@
   }
   .pass-sources a { color: inherit; text-decoration: underline; }
 
+  /* Wishlist (drag target) */
+  .wishlist-card {
+    border: 1px solid rgba(255, 91, 141, .35);
+  }
+  .wishlist-card h2 { background: linear-gradient(180deg, #fff7fa, #ffffff); }
+  .wishlist-items {
+    min-height: 60px;
+    padding: 6px 0 8px;
+  }
+  .wishlist-empty {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12.5px;
+    padding: 18px 14px !important;
+    margin: 8px 12px;
+    border: 2px dashed #f4cdd9;
+    border-radius: 10px;
+    cursor: default;
+    user-select: none;
+    list-style: none;
+  }
+  .wishlist-items li[data-id] {
+    cursor: grab;
+    align-items: center;
+    padding: 10px 14px;
+  }
+  .wishlist-items li[data-id]:active { cursor: grabbing; }
+  .wishlist-items li .rank {
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    min-width: 22px;
+    text-align: center;
+    font-size: 13.5px;
+    flex-shrink: 0;
+  }
+  .wishlist-items li .drag-handle {
+    color: #c9cfda;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+  .wl-remove {
+    opacity: .35;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    align-self: center;
+    transition: opacity .15s ease, color .15s ease;
+  }
+  .wishlist-items li:hover .wl-remove { opacity: 1; }
+  .wl-remove:hover { color: #e11d48; }
+  .drag-ghost { opacity: .35; }
+  .drag-chosen { background: #fff7fa !important; }
+  /* on touch, hint that area items are draggable via long-press */
+  .area-drop-hint {
+    font-size: 11.5px;
+    color: rgba(255,255,255,.55);
+    margin: -4px 4px 12px;
+    line-height: 1.5;
+  }
+
   /* Map view */
   .map-toolbar {
     display: flex;
@@ -600,8 +667,19 @@
 
   <!-- Attractions view -->
   <section class="view" data-view="attractions">
+    <section class="category wishlist-card">
+      <h2>
+        <span class="icon">🎯</span>
+        今日乗りたい (優先順)
+        <span class="cat-count" id="wishlistCount"></span>
+      </h2>
+      <ul class="items wishlist-items" id="wishlistItems"></ul>
+    </section>
+    <div class="area-drop-hint">↑ 下のアトラクションを<b>長押ししてドラッグ</b>すると、ここに追加できます。並び替えもドラッグでできます。</div>
+
     <div class="toolbar">
       <button id="resetAttractions">🔄 アトラクションをリセット</button>
+      <button id="resetWishlist">🎯 優先順をリセット</button>
     </div>
     <div id="attractionsApp"></div>
   </section>
@@ -1134,6 +1212,133 @@ document.getElementById("resetAttractions").addEventListener("click", () => {
 });
 
 /* =========================================
+ * Wishlist (drag target at top of attractions)
+ * ========================================= */
+const WISHLIST_KEY = "disney-wishlist-v1";
+let wishlistIds = [];
+try { wishlistIds = JSON.parse(localStorage.getItem(WISHLIST_KEY) || "[]"); } catch {}
+function saveWishlist() { localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlistIds)); }
+
+function findAttraction(id) {
+  for (const cat of attractionsData) {
+    const it = cat.items.find((i) => i.id === id);
+    if (it) return it;
+  }
+  return null;
+}
+
+function renderWishlist() {
+  const ul = document.getElementById("wishlistItems");
+  const countEl = document.getElementById("wishlistCount");
+  ul.innerHTML = "";
+  // prune ids that no longer exist (e.g. user deleted from area)
+  wishlistIds = wishlistIds.filter((id) => !!findAttraction(id));
+
+  if (wishlistIds.length === 0) {
+    const li = document.createElement("li");
+    li.className = "wishlist-empty";
+    li.textContent = "ここに乗りたいアトラクションをドラッグして優先順位を作ろう";
+    ul.appendChild(li);
+    countEl.textContent = "";
+    saveWishlist();
+    return;
+  }
+
+  wishlistIds.forEach((id, i) => {
+    const it = findAttraction(id);
+    const li = document.createElement("li");
+    li.dataset.id = id;
+    const passTag = it.pass
+      ? `<span class="pass-tag ${it.pass.toLowerCase()}">${it.pass}</span>`
+      : "";
+    const closedBadge = it.closed ? `<span class="badge">休止中</span>` : "";
+    li.innerHTML = `
+      <span class="rank">${i + 1}</span>
+      <span class="label">${escapeHtml(it.text)}${passTag}${closedBadge}</span>
+      <button class="wl-remove" title="削除">✕</button>
+      <span class="drag-handle">⋮⋮</span>
+    `;
+    ul.appendChild(li);
+  });
+  countEl.textContent = `${wishlistIds.length}件`;
+  saveWishlist();
+}
+
+document.getElementById("wishlistItems").addEventListener("click", (e) => {
+  if (!e.target.classList.contains("wl-remove")) return;
+  const li = e.target.closest("li[data-id]");
+  if (!li) return;
+  wishlistIds = wishlistIds.filter((id) => id !== li.dataset.id);
+  renderWishlist();
+});
+
+document.getElementById("resetWishlist").addEventListener("click", () => {
+  if (wishlistIds.length === 0) return;
+  if (!confirm("優先順リストを空にしますか?")) return;
+  wishlistIds = [];
+  renderWishlist();
+});
+
+/* SortableJS init - drag from area lists into wishlist, reorder within. */
+let areaSortables = [];
+function initSortables() {
+  if (typeof Sortable === "undefined") return; // CDN not loaded yet
+  // Wishlist: accept drops, allow internal reorder
+  if (!document.getElementById("wishlistItems").__sortable) {
+    const s = new Sortable(document.getElementById("wishlistItems"), {
+      group: { name: "attractions", pull: false, put: true },
+      animation: 150,
+      filter: ".wishlist-empty, .wl-remove",
+      preventOnFilter: false,
+      delay: 200,
+      delayOnTouchOnly: true,
+      ghostClass: "drag-ghost",
+      chosenClass: "drag-chosen",
+      onAdd(evt) {
+        const id = evt.item.dataset.id;
+        evt.item.remove(); // we re-render from data
+        if (id && !wishlistIds.includes(id)) {
+          const insertAt = Math.min(evt.newIndex, wishlistIds.length);
+          wishlistIds.splice(insertAt, 0, id);
+        }
+        renderWishlist();
+      },
+      onUpdate() {
+        const ids = Array.from(
+          document.querySelectorAll("#wishlistItems li[data-id]")
+        ).map((el) => el.dataset.id);
+        wishlistIds = ids;
+        renderWishlist();
+      },
+    });
+    document.getElementById("wishlistItems").__sortable = s;
+  }
+  // Area lists: items can be cloned out via long-press; original stays
+  areaSortables.forEach((s) => s.destroy());
+  areaSortables = [];
+  document.querySelectorAll("#attractionsApp ul.items").forEach((ul) => {
+    areaSortables.push(
+      new Sortable(ul, {
+        group: { name: "attractions", pull: "clone", put: false },
+        sort: false,
+        animation: 150,
+        delay: 220,
+        delayOnTouchOnly: true,
+        ghostClass: "drag-ghost",
+        chosenClass: "drag-chosen",
+      })
+    );
+  });
+}
+
+// re-init area sortables every time attractions re-render
+const _origRenderAttractions = renderAttractions;
+renderAttractions = function () {
+  _origRenderAttractions();
+  initSortables();
+};
+
+/* =========================================
  * Countdown + init
  * ========================================= */
 function updateCountdown() {
@@ -1150,7 +1355,16 @@ setInterval(updateCountdown, 60000);
 
 renderPacking();
 renderAttractions();
+renderWishlist();
 switchView(localStorage.getItem(VIEW_KEY) || "packing");
+
+// SortableJS is loaded with `defer`; re-run init once it's available.
+if (typeof Sortable === "undefined") {
+  window.addEventListener("DOMContentLoaded", initSortables);
+  window.addEventListener("load", initSortables);
+} else {
+  initSortables();
+}
 </script>
 </body>
 </html>
