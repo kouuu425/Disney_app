@@ -247,6 +247,20 @@
     vertical-align: 2px;
     letter-spacing: .04em;
   }
+  ul.items li .label .pass-tag {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    vertical-align: 2px;
+    letter-spacing: .04em;
+    border: 1px solid transparent;
+  }
+  .pass-tag.dpa { background: #fff1f4; color: #c01450; border-color: #fadbe4; }
+  .pass-tag.pp  { background: #e8f5ee; color: #1a7a43; border-color: #c7e8d3; }
+  .pass-tag.sp  { background: #eef2ff; color: #2c3ea8; border-color: #d5dbf5; }
   ul.items li .label .note {
     display: block;
     color: var(--muted);
@@ -925,7 +939,7 @@ document.getElementById("exportData").addEventListener("click", () => {
 /* =========================================
  * DisneySea Attractions
  * ========================================= */
-const ATTRACTIONS_KEY = "disney-attractions-v2";
+const ATTRACTIONS_KEY = "disney-attractions-v3";
 
 const attractionsDefaults = [
   {
@@ -933,7 +947,7 @@ const attractionsDefaults = [
     title: "メディテレーニアンハーバー",
     icon: "⚓",
     items: [
-      { id: "a-soarin", text: "ソアリン:ファンタスティック・フライト" },
+      { id: "a-soarin", text: "ソアリン:ファンタスティック・フライト", pass: "DPA" },
       { id: "a-gondola", text: "ヴェネツィアン・ゴンドラ" },
       { id: "a-steamer", text: "ディズニーシー・トランジットスチーマーライン" },
       { id: "a-fortress", text: "フォートレス・エクスプロレーション" },
@@ -944,8 +958,8 @@ const attractionsDefaults = [
     title: "ミステリアスアイランド",
     icon: "🌋",
     items: [
-      { id: "a-center", text: "センター・オブ・ジ・アース" },
-      { id: "a-20000", text: "海底2万マイル", closed: true, note: "休止中 (〜5/11)" },
+      { id: "a-center", text: "センター・オブ・ジ・アース", pass: "DPA" },
+      { id: "a-20000", text: "海底2万マイル", pass: "PP", closed: true, note: "休止中 (〜5/11)" },
     ],
   },
   {
@@ -970,7 +984,7 @@ const attractionsDefaults = [
       { id: "a-jasmine", text: "ジャスミンのフライングカーペット" },
       { id: "a-caravan", text: "キャラバンカルーセル" },
       { id: "a-sindbad", text: "シンドバッド・ストーリーブック・ヴォヤッジ", closed: true, note: "休止中 (〜4/30)" },
-      { id: "a-lamp", text: "マジックランプシアター" },
+      { id: "a-lamp", text: "マジックランプシアター", pass: "PP" },
     ],
   },
   {
@@ -978,8 +992,8 @@ const attractionsDefaults = [
     title: "ロストリバーデルタ",
     icon: "🌴",
     items: [
-      { id: "a-indy", text: "インディ・ジョーンズ・アドベンチャー", closed: true, note: "休止中 (長期)" },
-      { id: "a-raging", text: "レイジングスピリッツ" },
+      { id: "a-indy", text: "インディ・ジョーンズ・アドベンチャー", pass: "PP", closed: true, note: "休止中 (長期)" },
+      { id: "a-raging", text: "レイジングスピリッツ", pass: "PP" },
     ],
   },
   {
@@ -987,8 +1001,8 @@ const attractionsDefaults = [
     title: "ポートディスカバリー",
     icon: "🌊",
     items: [
-      { id: "a-aquatopia", text: "アクアトピア" },
-      { id: "a-nemo", text: "ニモ&フレンズ・シーライダー" },
+      { id: "a-aquatopia", text: "アクアトピア", pass: "PP", passNote: "夏季限定" },
+      { id: "a-nemo", text: "ニモ&フレンズ・シーライダー", pass: "PP" },
     ],
   },
   {
@@ -996,9 +1010,9 @@ const attractionsDefaults = [
     title: "アメリカンウォーターフロント",
     icon: "🚢",
     items: [
-      { id: "a-tot", text: "タワー・オブ・テラー" },
-      { id: "a-toy", text: "トイ・ストーリー・マニア!" },
-      { id: "a-turtle", text: "タートル・トーク" },
+      { id: "a-tot", text: "タワー・オブ・テラー", pass: "DPA" },
+      { id: "a-toy", text: "トイ・ストーリー・マニア!", pass: "DPA" },
+      { id: "a-turtle", text: "タートル・トーク", pass: "PP" },
       { id: "a-electric", text: "ディズニーシー・エレクトリックレールウェイ" },
       { id: "a-bigcity", text: "ビッグシティ・ヴィークル" },
     ],
@@ -1008,9 +1022,9 @@ const attractionsDefaults = [
     title: "ファンタジースプリングス",
     icon: "❄️",
     items: [
-      { id: "a-frozen", text: "アナと雪の女王:アナとエルサのフローズンジャーニー" },
-      { id: "a-rapunzel", text: "ラプンツェルのランタンフェスティバル" },
-      { id: "a-peter", text: "ピーターパンのネバーランドアドベンチャー" },
+      { id: "a-frozen", text: "アナと雪の女王:アナとエルサのフローズンジャーニー", pass: "DPA" },
+      { id: "a-rapunzel", text: "ラプンツェルのランタンフェスティバル", pass: "DPA" },
+      { id: "a-peter", text: "ピーターパンのネバーランドアドベンチャー", pass: "DPA" },
       { id: "a-tinker", text: "フェアリー・ティンカーベルのビジーバギー" },
     ],
   },
@@ -1059,11 +1073,19 @@ function renderAttractions() {
       const li = document.createElement("li");
       li.className = [it.done ? "done" : "", it.closed ? "closed" : ""].filter(Boolean).join(" ");
       li.dataset.id = it.id;
-      const badge = it.closed ? `<span class="badge">休止中</span>` : "";
-      const note = it.note ? `<span class="note">${escapeHtml(it.note)}</span>` : "";
+      const closedBadge = it.closed ? `<span class="badge">休止中</span>` : "";
+      const passTag = it.pass
+        ? `<span class="pass-tag ${it.pass.toLowerCase()}" title="${it.pass}${it.passNote ? " (" + escapeHtml(it.passNote) + ")" : ""}">${it.pass}</span>`
+        : "";
+      const noteParts = [];
+      if (it.passNote) noteParts.push(`${it.pass}: ${it.passNote}`);
+      if (it.note) noteParts.push(it.note);
+      const note = noteParts.length
+        ? `<span class="note">${escapeHtml(noteParts.join(" / "))}</span>`
+        : "";
       li.innerHTML = `
         <input type="checkbox" ${it.done ? "checked" : ""} ${it.closed ? "disabled" : ""} />
-        <span class="label">${escapeHtml(it.text)}${badge}${note}</span>
+        <span class="label">${escapeHtml(it.text)}${passTag}${closedBadge}${note}</span>
         <button class="item-remove" title="削除">✕</button>
       `;
       ul.appendChild(li);
